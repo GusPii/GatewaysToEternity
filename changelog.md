@@ -1,3 +1,6 @@
+## 4.2.6
+* Quarkrus: Added russian translation.
+
 ## 4.2.5
 * Made gate pearls report the creator modid instead of always reporting `gateways`.
 
