@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
@@ -64,13 +65,13 @@ public interface Gateway extends CodecProvider<Gateway> {
     /**
      * Appends tooltip lines to a {@link GatePearlItem} which targets this Gateway.
      * <p>
-     * The implementation of this method must be bounced to a client-only class if it access client code.
+     * The implementation of this method must be bounced to a client-only class and guarded appropriately if it access client code.
      * 
-     * @param level    The client level.
+     * @param ctx      The tooltip context.
      * @param tooltips The current list of tooltips.
      * @param flag     The tooltip flag used to collect tooltips.
      */
-    void appendPearlTooltip(Level level, List<Component> tooltips, TooltipFlag flag);
+    void appendPearlTooltip(TooltipContext ctx, List<Component> tooltips, TooltipFlag flag);
 
     /**
      * Renders the boss bar and other relevant text information on a {@link GatewayEntity}.

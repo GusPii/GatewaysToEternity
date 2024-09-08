@@ -2,7 +2,7 @@ package dev.shadowsoffire.gateways.event;
 
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.entity.EntityEvent;
+import net.neoforged.neoforge.event.entity.EntityEvent;
 
 public abstract class GateEvent extends EntityEvent {
 

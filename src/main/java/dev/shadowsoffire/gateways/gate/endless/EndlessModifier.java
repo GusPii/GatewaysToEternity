@@ -10,7 +10,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.shadowsoffire.gateways.gate.Reward;
 import dev.shadowsoffire.gateways.gate.WaveEntity;
 import dev.shadowsoffire.gateways.gate.WaveModifier;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 
 /**
  * An Endless Modifier is a periodically applied modification to a running Endless Gateway.
@@ -22,11 +21,11 @@ public record EndlessModifier(ApplicationMode appMode, List<WaveEntity> entities
     public static Codec<EndlessModifier> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
             ApplicationMode.CODEC.fieldOf("application_mode").forGetter(EndlessModifier::appMode),
-            PlaceboCodecs.nullableField(WaveEntity.CODEC.listOf(), "entities", Collections.emptyList()).forGetter(EndlessModifier::entities),
-            PlaceboCodecs.nullableField(Reward.CODEC.listOf(), "rewards", Collections.emptyList()).forGetter(EndlessModifier::rewards),
-            PlaceboCodecs.nullableField(WaveModifier.CODEC.listOf(), "modifiers", Collections.emptyList()).forGetter(EndlessModifier::modifiers),
-            PlaceboCodecs.nullableField(Codec.INT, "max_wave_time", 0).forGetter(EndlessModifier::waveTime),
-            PlaceboCodecs.nullableField(Codec.INT, "setup_time", 0).forGetter(EndlessModifier::setupTime))
+            WaveEntity.CODEC.listOf().optionalFieldOf("entities", Collections.emptyList()).forGetter(EndlessModifier::entities),
+            Reward.CODEC.listOf().optionalFieldOf("rewards", Collections.emptyList()).forGetter(EndlessModifier::rewards),
+            WaveModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(EndlessModifier::modifiers),
+            Codec.INT.optionalFieldOf("max_wave_time", 0).forGetter(EndlessModifier::waveTime),
+            Codec.INT.optionalFieldOf("setup_time", 0).forGetter(EndlessModifier::setupTime))
         .apply(inst, EndlessModifier::new));
 
     public EndlessModifier(ApplicationMode appMode, List<WaveEntity> entities, List<Reward> rewards, List<WaveModifier> modifiers, int waveTime, int setupTime) {

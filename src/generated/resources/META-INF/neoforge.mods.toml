@@ -1,0 +1,41 @@
+modLoader="javafml"
+
+loaderVersion="[2,)"
+
+license="MIT License"
+
+[[mods]] #mandatory
+
+modId="gateways"
+
+version="5.0.0-beta0"
+
+displayName="Gateways To Eternity"
+
+authors="Shadows_of_Fire"
+
+description='''Adds combat-based events which provide various rewards and challenges.'''
+
+[[mixins]]
+config="gateways.mixins.json"
+
+[[dependencies.gateways]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.gateways]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.8,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.gateways]]
+    modId="placebo"
+    type="required"
+    versionRange="[9.5.1,)"
+    ordering="NONE"
+    side="BOTH"

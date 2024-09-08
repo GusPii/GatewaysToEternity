@@ -5,7 +5,7 @@ import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import dev.shadowsoffire.attributeslib.api.AttributeHelper;
+import dev.shadowsoffire.apothic_attributes.api.AttributeHelper;
 import dev.shadowsoffire.gateways.entity.EndlessGatewayEntity;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.gateways.gate.Failure;
@@ -28,8 +28,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 
 /**
  * Client code specific to {@link NormalGateway}
@@ -38,7 +38,7 @@ public class EndlessGateClient {
 
     public static final ResourceLocation BARS = GatewaysClient.BARS;
 
-    public static void appendPearlTooltip(EndlessGateway gate, Level level, List<Component> tooltips, TooltipFlag flag) {
+    public static void appendPearlTooltip(EndlessGateway gate, TooltipContext ctx, List<Component> tooltips, TooltipFlag flag) {
         MutableComponent comp;
 
         Wave wave = gate.baseWave();
@@ -66,7 +66,7 @@ public class EndlessGateClient {
         comp = AttributeHelper.list().append(Component.translatable("tooltip.gateways.rewards").withStyle(ChatFormatting.GOLD));
         tooltips.add(comp);
         for (Reward r : wave.rewards()) {
-            r.appendHoverText(c -> {
+            r.appendHoverText(ctx, c -> {
                 tooltips.add(AttributeHelper.list().append(Component.translatable("tooltip.gateways.dot", c).withStyle(ChatFormatting.GOLD)));
             });
         }
@@ -118,7 +118,7 @@ public class EndlessGateClient {
                 comp = AttributeHelper.list().append(Component.translatable("tooltip.gateways.rewards").withStyle(ChatFormatting.GOLD));
                 tooltips.add(comp);
                 for (Reward r : modif.rewards()) {
-                    r.appendHoverText(c -> {
+                    r.appendHoverText(ctx, c -> {
                         tooltips.add(AttributeHelper.list().append(Component.translatable("tooltip.gateways.dot", c).withStyle(ChatFormatting.GOLD)));
                     });
                 }
@@ -137,7 +137,7 @@ public class EndlessGateClient {
                 comp = Component.translatable("tooltip.gateways.failures").withStyle(Style.EMPTY.withColor(ChatFormatting.RED));
                 tooltips.add(comp);
                 for (Failure f : failures) {
-                    f.appendHoverText(c -> {
+                    f.appendHoverText(ctx, c -> {
                         tooltips.add(AttributeHelper.list().append(c.withStyle(Style.EMPTY.withColor(ChatFormatting.RED))));
                     });
                 }
@@ -229,10 +229,11 @@ public class EndlessGateClient {
         }
 
         int time = (int) maxTime - gate.getTicksActive();
-        String str = I18n.get("boss.gateways.endless.top", wave, '\u221E', StringUtil.formatTickDuration(time));
+        float tps = gateEntity.level().tickRateManager().tickrate();
+        String str = I18n.get("boss.gateways.endless.top", wave, '\u221E', StringUtil.formatTickDuration(time, tps));
         String str2 = I18n.get("boss.gateways.endless.bot", enemies, maxEnemies, modifiers);
         if (!gate.isWaveActive()) {
-            str = I18n.get("boss.gateways.starting", wave, StringUtil.formatTickDuration(time));
+            str = I18n.get("boss.gateways.starting", wave, StringUtil.formatTickDuration(time, tps));
             str2 = I18n.get("boss.gateways.endless.incoming", maxEnemies);
         }
         component = Component.literal(str).withStyle(ChatFormatting.GREEN);

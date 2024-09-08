@@ -18,13 +18,13 @@ import dev.shadowsoffire.gateways.Gateways;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
-import dev.shadowsoffire.placebo.json.ItemAdapter;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
@@ -36,14 +36,14 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
 
 /**
  * A Reward is provided when a gateway wave is finished.
@@ -68,7 +68,7 @@ public interface Reward extends CodecProvider<Reward> {
      */
     public void generateLoot(ServerLevel level, GatewayEntity gate, Player summoner, Consumer<ItemStack> list);
 
-    public void appendHoverText(Consumer<MutableComponent> list);
+    public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list);
 
     public static void initSerializers() {
         register("stack", StackReward.CODEC);
@@ -102,7 +102,7 @@ public interface Reward extends CodecProvider<Reward> {
 
         public static Codec<StackReward> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
-                ItemAdapter.CODEC.fieldOf("stack").forGetter(StackReward::stack))
+                ItemStack.CODEC.fieldOf("stack").forGetter(StackReward::stack))
             .apply(inst, StackReward::new));
 
         @Override
@@ -111,7 +111,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("reward.gateways.stack", this.stack.getCount(), this.stack.getHoverName()));
         }
 
@@ -128,7 +128,7 @@ public interface Reward extends CodecProvider<Reward> {
 
         public static Codec<StackListReward> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
-                ItemAdapter.CODEC.listOf().fieldOf("stacks").forGetter(StackListReward::stacks))
+                ItemStack.CODEC.listOf().fieldOf("stacks").forGetter(StackListReward::stacks))
             .apply(inst, StackListReward::new));
 
         @Override
@@ -137,7 +137,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             for (ItemStack stack : this.stacks) {
                 list.accept(Component.translatable("reward.gateways.stack", stack.getCount(), stack.getHoverName()));
             }
@@ -156,9 +156,9 @@ public interface Reward extends CodecProvider<Reward> {
 
         public static Codec<EntityLootReward> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
-                ForgeRegistries.ENTITY_TYPES.getCodec().fieldOf("entity").forGetter(EntityLootReward::type),
-                PlaceboCodecs.nullableField(NBTAdapter.EITHER_CODEC, "nbt").forGetter(r -> Optional.ofNullable(r.nbt)),
-                PlaceboCodecs.nullableField(Codec.intRange(1, Integer.MAX_VALUE), "rolls", 1).forGetter(EntityLootReward::rolls))
+                BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(EntityLootReward::type),
+                NBTAdapter.EITHER_CODEC.optionalFieldOf("nbt").forGetter(r -> Optional.ofNullable(r.nbt)),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("rolls", 1).forGetter(EntityLootReward::rolls))
             .apply(inst, (type, nbt, rolls) -> new EntityLootReward(type, nbt.orElse(null), rolls)));
 
         @Override
@@ -186,7 +186,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("reward.gateways.entity", this.rolls, Component.translatable(this.type.getDescriptionId())));
         }
 
@@ -204,13 +204,13 @@ public interface Reward extends CodecProvider<Reward> {
         public static Codec<LootTableReward> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
                 ResourceLocation.CODEC.fieldOf("loot_table").forGetter(LootTableReward::table),
-                PlaceboCodecs.nullableField(Codec.intRange(1, Integer.MAX_VALUE), "rolls", 1).forGetter(LootTableReward::rolls),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("rolls", 1).forGetter(LootTableReward::rolls),
                 Codec.STRING.fieldOf("desc").forGetter(LootTableReward::desc))
             .apply(inst, LootTableReward::new));
 
         @Override
         public void generateLoot(ServerLevel level, GatewayEntity gate, Player summoner, Consumer<ItemStack> list) {
-            LootTable realTable = level.getServer().getLootData().getLootTable(this.table);
+            LootTable realTable = level.getServer().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, this.table));
             for (int i = 0; i < this.rolls; i++) {
                 LootParams.Builder ctx = new LootParams.Builder(level).withParameter(LootContextParams.ORIGIN, gate.getPosition(1));
                 ctx.withLuck(summoner.getLuck()).withParameter(LootContextParams.THIS_ENTITY, summoner).withParameter(LootContextParams.TOOL, summoner.getMainHandItem());
@@ -219,7 +219,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("reward.gateways.loot_table", this.rolls, this.desc.isEmpty() ? this.table : Component.translatable(this.desc)));
         }
 
@@ -248,8 +248,8 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
-            this.reward.appendHoverText(c -> {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
+            this.reward.appendHoverText(ctx, c -> {
                 list.accept(Component.translatable("reward.gateways.chance", fmt.format(this.chance), c));
             });
         }
@@ -278,7 +278,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable(this.desc));
         }
 
@@ -296,7 +296,7 @@ public interface Reward extends CodecProvider<Reward> {
         public static Codec<XpReward> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
                 Codec.INT.fieldOf("experience").forGetter(XpReward::xp),
-                PlaceboCodecs.nullableField(Codec.INT, "orb_size", 5).forGetter(XpReward::orbSize))
+                Codec.INT.optionalFieldOf("orb_size", 5).forGetter(XpReward::orbSize))
             .apply(inst, XpReward::new));
 
         @Override
@@ -309,7 +309,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("reward.gateways.experience", this.xp));
         }
 
@@ -342,7 +342,7 @@ public interface Reward extends CodecProvider<Reward> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("reward.gateways.summon", this.entity.getDescription()));
         }
 

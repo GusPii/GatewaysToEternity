@@ -18,10 +18,10 @@ import dev.shadowsoffire.gateways.gate.Reward;
 import dev.shadowsoffire.gateways.gate.SpawnAlgorithms;
 import dev.shadowsoffire.gateways.gate.SpawnAlgorithms.SpawnAlgorithm;
 import dev.shadowsoffire.gateways.gate.Wave;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
@@ -44,11 +44,11 @@ public record NormalGateway(Size size, TextColor color, List<Wave> waves, List<R
             Size.CODEC.fieldOf("size").forGetter(NormalGateway::size),
             TextColor.CODEC.fieldOf("color").forGetter(NormalGateway::color),
             Wave.CODEC.listOf().fieldOf("waves").forGetter(NormalGateway::waves),
-            PlaceboCodecs.nullableField(Reward.CODEC.listOf(), "rewards", Collections.emptyList()).forGetter(NormalGateway::rewards),
-            PlaceboCodecs.nullableField(Failure.CODEC.listOf(), "failures", Collections.emptyList()).forGetter(NormalGateway::failures),
-            PlaceboCodecs.nullableField(SpawnAlgorithms.CODEC, "spawn_algorithm", SpawnAlgorithms.OPEN_FIELD).forGetter(NormalGateway::spawnAlgo),
-            PlaceboCodecs.nullableField(GateRules.CODEC, "rules", GateRules.DEFAULT).forGetter(NormalGateway::rules),
-            PlaceboCodecs.nullableField(BossEventSettings.CODEC, "boss_event", BossEventSettings.DEFAULT).forGetter(NormalGateway::bossSettings))
+            Reward.CODEC.listOf().optionalFieldOf("rewards", Collections.emptyList()).forGetter(NormalGateway::rewards),
+            Failure.CODEC.listOf().optionalFieldOf("failures", Collections.emptyList()).forGetter(NormalGateway::failures),
+            SpawnAlgorithms.CODEC.optionalFieldOf("spawn_algorithm", SpawnAlgorithms.OPEN_FIELD).forGetter(NormalGateway::spawnAlgo),
+            GateRules.CODEC.optionalFieldOf("rules", GateRules.DEFAULT).forGetter(NormalGateway::rules),
+            BossEventSettings.CODEC.optionalFieldOf("boss_event", BossEventSettings.DEFAULT).forGetter(NormalGateway::bossSettings))
         .apply(inst, NormalGateway::new));
 
     @Override
@@ -57,8 +57,8 @@ public record NormalGateway(Size size, TextColor color, List<Wave> waves, List<R
     }
 
     @Override
-    public void appendPearlTooltip(Level level, List<Component> tooltips, TooltipFlag flag) {
-        NormalGateClient.appendPearlTooltip(this, level, tooltips, flag);
+    public void appendPearlTooltip(TooltipContext ctx, List<Component> tooltips, TooltipFlag flag) {
+        NormalGateClient.appendPearlTooltip(this, ctx, tooltips, flag);
     }
 
     @Override

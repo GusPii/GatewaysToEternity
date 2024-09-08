@@ -8,11 +8,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
+import dev.shadowsoffire.gateways.Gateways;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.gateways.entity.GatewayEntity.FailureReason;
 import dev.shadowsoffire.gateways.event.GateEvent;
 import dev.shadowsoffire.gateways.net.ParticleMessage;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -27,9 +27,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.EventHooks;
 
 /**
  * A single wave of a gateway.
@@ -45,8 +45,8 @@ public record Wave(List<WaveEntity> entities, List<WaveModifier> modifiers, List
     public static Codec<Wave> CODEC = RecordCodecBuilder.create(inst -> inst
         .group(
             WaveEntity.CODEC.listOf().fieldOf("entities").forGetter(Wave::entities),
-            PlaceboCodecs.nullableField(WaveModifier.CODEC.listOf(), "modifiers", Collections.emptyList()).forGetter(Wave::modifiers),
-            PlaceboCodecs.nullableField(Reward.CODEC.listOf(), "rewards", Collections.emptyList()).forGetter(Wave::rewards),
+            WaveModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(Wave::modifiers),
+            Reward.CODEC.listOf().optionalFieldOf("rewards", Collections.emptyList()).forGetter(Wave::rewards),
             Codec.INT.fieldOf("max_wave_time").forGetter(Wave::maxWaveTime),
             Codec.INT.fieldOf("setup_time").forGetter(Wave::setupTime))
         .apply(inst, Wave::new));
@@ -113,7 +113,7 @@ public record Wave(List<WaveEntity> entities, List<WaveModifier> modifiers, List
 
         if (entity instanceof Mob mob) {
             if (waveEntity.shouldFinalizeSpawn()) {
-                ForgeEventFactory.onFinalizeSpawn(mob, level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWNER, null, null);
+                EventHooks.finalizeMobSpawn(mob, level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWNER, null);
             }
             Player summoner = gate.summonerOrClosest();
             if (!(summoner instanceof FakePlayer)) {
@@ -139,13 +139,13 @@ public record Wave(List<WaveEntity> entities, List<WaveModifier> modifiers, List
         if (rules.followRangeBoost() > 0) {
             AttributeInstance attr = entity.getAttribute(Attributes.FOLLOW_RANGE);
             if (attr != null) {
-                attr.addPermanentModifier(new AttributeModifier("Gateway Follow Range Boost", rules.followRangeBoost(), Operation.ADDITION));
+                attr.addPermanentModifier(new AttributeModifier(Gateways.loc("follow_range_boost"), rules.followRangeBoost(), Operation.ADD_VALUE));
             }
         }
 
-        MinecraftForge.EVENT_BUS.post(new GateEvent.WaveEntitySpawned(gate, entity));
+        NeoForge.EVENT_BUS.post(new GateEvent.WaveEntitySpawned(gate, entity));
         level.addFreshEntityWithPassengers(entity);
-        level.playSound(null, gate.getX(), gate.getY(), gate.getZ(), GatewayObjects.GATE_WARP.get(), SoundSource.HOSTILE, 0.5F, 1);
+        level.playSound(null, gate.getX(), gate.getY(), gate.getZ(), GatewayObjects.GATE_WARP, SoundSource.HOSTILE, 0.5F, 1);
         gate.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticleMessage.Type.SPAWNED);
         return entity;
     }

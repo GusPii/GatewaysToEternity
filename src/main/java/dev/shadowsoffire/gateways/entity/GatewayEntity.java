@@ -31,11 +31,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -60,13 +58,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 
-public abstract class GatewayEntity extends Entity implements IEntityAdditionalSpawnData {
+public abstract class GatewayEntity extends Entity implements IEntityWithComplexSpawn {
 
     public static final EntityDataAccessor<Boolean> WAVE_ACTIVE = SynchedEntityData.defineId(GatewayEntity.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Integer> TICKS_ACTIVE = SynchedEntityData.defineId(GatewayEntity.class, EntityDataSerializers.INT);
@@ -77,7 +74,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
     protected final Set<UUID> unresolvedWaveEntities = new HashSet<>();
 
     protected UUID summonerId;
-    protected DynamicHolder<? extends Gateway> gate;
+    protected DynamicHolder<Gateway> gate;
     protected float clientScale = 0F;
     protected Queue<ItemStack> undroppedItems = new ArrayDeque<>();
     protected FailureReason failureReason;
@@ -85,7 +82,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
     @Nullable
     protected ServerBossEvent bossEvent;
 
-    public GatewayEntity(EntityType<? extends GatewayEntity> type, Level level, Player placer, DynamicHolder<? extends Gateway> gate) {
+    public GatewayEntity(EntityType<? extends GatewayEntity> type, Level level, Player placer, DynamicHolder<Gateway> gate) {
         super(type, level);
         this.summonerId = placer.getUUID();
         this.gate = gate;
@@ -195,7 +192,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
             if (this.isWaveActive()) {
                 if (enemies.isEmpty()) {
                     this.completeWave();
-                    MinecraftForge.EVENT_BUS.post(new GateEvent.WaveEnd(this));
+                    NeoForge.EVENT_BUS.post(new GateEvent.WaveEnd(this));
                     this.currentWaveEntities.clear();
                     this.entityData.set(WAVE_ACTIVE, false);
                     this.entityData.set(TICKS_ACTIVE, 0);
@@ -208,7 +205,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
                     this.entityData.set(WAVE_ACTIVE, true);
                     this.entityData.set(TICKS_ACTIVE, 0);
                     this.entityData.set(ENEMIES, this.currentWaveEntities.size());
-                    MinecraftForge.EVENT_BUS.post(new GateEvent.WaveStarted(this));
+                    NeoForge.EVENT_BUS.post(new GateEvent.WaveStarted(this));
                     return;
                 }
                 else if (this.isCompleted()) {
@@ -253,15 +250,15 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
      */
     protected void completeGateway() {
         this.remove(RemovalReason.KILLED);
-        this.playSound(GatewayObjects.GATE_END.get(), 16, 1);
+        this.playSound(GatewayObjects.GATE_END.value(), 16, 1);
 
-        this.level().getNearbyPlayers(TargetingConditions.DEFAULT, null, this.getBoundingBox().inflate(15)).forEach(p -> p.awardStat(GatewayObjects.GATES_DEFEATED.get()));
-        MinecraftForge.EVENT_BUS.post(new GateEvent.Completed(this));
+        this.level().getNearbyPlayers(TargetingConditions.DEFAULT, null, this.getBoundingBox().inflate(15)).forEach(p -> p.awardStat(GatewayObjects.GATES_DEFEATED.value()));
+        NeoForge.EVENT_BUS.post(new GateEvent.Completed(this));
     }
 
     public void onGateCreated() {
-        this.playSound(GatewayObjects.GATE_START.get(), 1, 1);
-        MinecraftForge.EVENT_BUS.post(new GateEvent.Opened(this));
+        this.playSound(GatewayObjects.GATE_START.value(), 1, 1);
+        NeoForge.EVENT_BUS.post(new GateEvent.Opened(this));
     }
 
     public Player summonerOrClosest() {
@@ -280,7 +277,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
      */
     public void onFailure(Collection<LivingEntity> remaining, FailureReason reason) {
         this.failureReason = reason;
-        MinecraftForge.EVENT_BUS.post(new GateEvent.Failed(this));
+        NeoForge.EVENT_BUS.post(new GateEvent.Failed(this));
         Player player = this.summonerOrClosest();
         if (player != null) player.sendSystemMessage(reason.getMsg());
         spawnLightningOn(this, false);
@@ -323,7 +320,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
         if (this.summonerId != null) tag.putUUID("summoner", this.summonerId);
         ListTag stacks = new ListTag();
         for (ItemStack s : this.undroppedItems) {
-            stacks.add(s.serializeNBT());
+            stacks.add(s.save(this.registryAccess()));
         }
         tag.put("queued_stacks", stacks);
     }
@@ -331,7 +328,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         if (tag.contains("wave")) this.entityData.set(WAVE, tag.getInt("wave"));
-        if (tag.contains("gate")) this.gate = GatewayRegistry.INSTANCE.holder(new ResourceLocation(tag.getString("gate")));
+        if (tag.contains("gate")) this.gate = GatewayRegistry.INSTANCE.holder(ResourceLocation.tryParse(tag.getString("gate")));
 
         if (!this.gate.isBound()) {
             Gateways.LOGGER.error("Invalid gateway at {} will be removed.", this.position());
@@ -355,7 +352,10 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
             this.undroppedItems.clear();
             ListTag stacks = tag.getList("queued_stacks", Tag.TAG_COMPOUND);
             for (Tag inbt : stacks) {
-                this.undroppedItems.add(ItemStack.of((CompoundTag) inbt));
+                ItemStack stack = ItemStack.parse(this.registryAccess(), (CompoundTag) inbt).orElse(ItemStack.EMPTY);
+                if (!stack.isEmpty()) {
+                    this.undroppedItems.add(stack);
+                }
             }
         }
         this.bossEvent = this.createBossEvent();
@@ -363,16 +363,11 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(WAVE_ACTIVE, false);
-        this.entityData.define(TICKS_ACTIVE, 0);
-        this.entityData.define(WAVE, 0);
-        this.entityData.define(ENEMIES, 0);
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(WAVE_ACTIVE, false);
+        builder.define(TICKS_ACTIVE, 0);
+        builder.define(WAVE, 0);
+        builder.define(ENEMIES, 0);
     }
 
     @Override
@@ -437,7 +432,7 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
         i.setPos(this.getX() + Mth.nextDouble(this.random, -0.5, 0.5), this.getY() + 1.5, this.getZ() + Mth.nextDouble(this.random, -0.5, 0.5));
         i.setDeltaMovement(Mth.nextDouble(this.random, -0.15, 0.15), 0.4, Mth.nextDouble(this.random, -0.15, 0.15));
         this.level().addFreshEntity(i);
-        this.level().playSound(null, i.getX(), i.getY(), i.getZ(), GatewayObjects.GATE_WARP.get(), SoundSource.HOSTILE, 0.25F, 2.0F);
+        this.level().playSound(null, i.getX(), i.getY(), i.getZ(), GatewayObjects.GATE_WARP, SoundSource.HOSTILE, 0.25F, 2.0F);
     }
 
     public void spawnCompletionItem(ItemStack stack) {
@@ -450,12 +445,12 @@ public abstract class GatewayEntity extends Entity implements IEntityAdditionalS
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buf) {
+    public void writeSpawnData(RegistryFriendlyByteBuf buf) {
         buf.writeResourceLocation(this.gate.getId());
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf buf) {
+    public void readSpawnData(RegistryFriendlyByteBuf buf) {
         this.gate = GatewayRegistry.INSTANCE.holder(buf.readResourceLocation());
         if (!this.gate.isBound()) throw new RuntimeException("Invalid gateway received on client!");
         this.refreshDimensions();

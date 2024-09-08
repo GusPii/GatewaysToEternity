@@ -5,7 +5,7 @@ import java.util.List;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import dev.shadowsoffire.attributeslib.api.AttributeHelper;
+import dev.shadowsoffire.apothic_attributes.api.AttributeHelper;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.gateways.entity.NormalGatewayEntity;
 import dev.shadowsoffire.gateways.gate.Failure;
@@ -26,8 +26,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 
 /**
  * Client code specific to {@link NormalGateway}
@@ -36,7 +36,7 @@ public class NormalGateClient {
 
     public static final ResourceLocation BARS = GatewaysClient.BARS;
 
-    public static void appendPearlTooltip(NormalGateway gate, Level level, List<Component> tooltips, TooltipFlag flag) {
+    public static void appendPearlTooltip(NormalGateway gate, TooltipContext ctx, List<Component> tooltips, TooltipFlag flag) {
         MutableComponent comp;
 
         int waveIdx = Math.floorMod(GatewaysClient.scrollIdx, gate.getNumWaves());
@@ -68,7 +68,7 @@ public class NormalGateClient {
             comp = AttributeHelper.list().append(Component.translatable("tooltip.gateways.rewards").withStyle(s -> s.withColor(ChatFormatting.GOLD)));
             tooltips.add(comp);
             for (Reward r : wave.rewards()) {
-                r.appendHoverText(c -> {
+                r.appendHoverText(ctx, c -> {
                     tooltips.add(AttributeHelper.list().append(Component.translatable("tooltip.gateways.dot", c).withStyle(s -> s.withColor(ChatFormatting.GOLD))));
                 });
             }
@@ -86,7 +86,7 @@ public class NormalGateClient {
                 comp = Component.translatable("tooltip.gateways.failures").withStyle(Style.EMPTY.withColor(ChatFormatting.RED));
                 tooltips.add(comp);
                 for (Failure f : failures) {
-                    f.appendHoverText(c -> {
+                    f.appendHoverText(ctx, c -> {
                         tooltips.add(AttributeHelper.list().append(c.withStyle(Style.EMPTY.withColor(ChatFormatting.RED))));
                     });
                 }
@@ -121,7 +121,7 @@ public class NormalGateClient {
             comp = Component.translatable("tooltip.gateways.key_rewards").withStyle(Style.EMPTY.withColor(0x33AA20));
             tooltips.add(comp);
             for (Reward r : rewards) {
-                r.appendHoverText(c -> {
+                r.appendHoverText(ctx, c -> {
                     tooltips.add(AttributeHelper.list().append(c.withStyle(Style.EMPTY.withColor(0x33AA20))));
                 });
             }
@@ -182,12 +182,13 @@ public class NormalGateClient {
         textY = y2 - 9;
 
         int time = (int) maxTime - gate.getTicksActive();
-        String str = I18n.get("boss.gateways.wave", wave, maxWave, StringUtil.formatTickDuration(time), enemies);
+        float tps = gateEntity.level().tickRateManager().tickrate();
+        String str = I18n.get("boss.gateways.wave", wave, maxWave, StringUtil.formatTickDuration(time, tps), enemies);
         if (!gate.isWaveActive()) {
             if (gate.isLastWave()) {
                 str = I18n.get("boss.gateways.done");
             }
-            else str = I18n.get("boss.gateways.starting", wave, StringUtil.formatTickDuration(time));
+            else str = I18n.get("boss.gateways.starting", wave, StringUtil.formatTickDuration(time, tps));
         }
         component = Component.literal(str).withStyle(ChatFormatting.GREEN);
         strWidth = font.width(component);

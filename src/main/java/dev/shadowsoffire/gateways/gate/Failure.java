@@ -11,7 +11,8 @@ import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.gateways.entity.GatewayEntity.FailureReason;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
@@ -21,9 +22,9 @@ import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.level.Level.ExplosionInteraction;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * A Failure is a negative effect that triggers when a gateway errors for some reason.
@@ -42,7 +43,7 @@ public interface Failure extends CodecProvider<Failure> {
      */
     public void onFailure(ServerLevel level, GatewayEntity gate, Player summoner, FailureReason reason);
 
-    public void appendHoverText(Consumer<MutableComponent> list);
+    public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list);
 
     public static void initSerializers() {
         register("explosion", ExplosionFailure.CODEC);
@@ -79,7 +80,7 @@ public interface Failure extends CodecProvider<Failure> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("failure.gateways.explosion", this.strength, this.fire, this.blockDamage));
         }
     }
@@ -87,13 +88,13 @@ public interface Failure extends CodecProvider<Failure> {
     /**
      * Applies a mob effect to all nearby players on failure.
      */
-    public static record MobEffectFailure(MobEffect effect, int duration, int amplifier) implements Failure {
+    public static record MobEffectFailure(Holder<MobEffect> effect, int duration, int amplifier) implements Failure {
 
         public static Codec<MobEffectFailure> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
-                ForgeRegistries.MOB_EFFECTS.getCodec().fieldOf("effect").forGetter(MobEffectFailure::effect),
+                BuiltInRegistries.MOB_EFFECT.holderByNameCodec().fieldOf("effect").forGetter(MobEffectFailure::effect),
                 Codec.INT.fieldOf("duration").forGetter(MobEffectFailure::duration),
-                PlaceboCodecs.nullableField(Codec.INT, "amplifier", 0).forGetter(MobEffectFailure::amplifier))
+                Codec.INT.optionalFieldOf("amplifier", 0).forGetter(MobEffectFailure::amplifier))
             .apply(inst, MobEffectFailure::new));
 
         @Override
@@ -109,23 +110,23 @@ public interface Failure extends CodecProvider<Failure> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
-            list.accept(Component.translatable("failure.gateways.mob_effect", toComponent(new MobEffectInstance(this.effect, this.duration, this.amplifier))));
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
+            list.accept(Component.translatable("failure.gateways.mob_effect", toComponent(new MobEffectInstance(this.effect, this.duration, this.amplifier), ctx.tickRate())));
         }
 
-        private static Component toComponent(MobEffectInstance mobeffectinstance) {
+        private static Component toComponent(MobEffectInstance mobeffectinstance, float tps) {
             MutableComponent mutablecomponent = Component.translatable(mobeffectinstance.getDescriptionId());
-            MobEffect mobeffect = mobeffectinstance.getEffect();
+            Holder<MobEffect> mobeffect = mobeffectinstance.getEffect();
 
             if (mobeffectinstance.getAmplifier() > 0) {
                 mutablecomponent = Component.translatable("potion.withAmplifier", mutablecomponent, Component.translatable("potion.potency." + mobeffectinstance.getAmplifier()));
             }
 
             if (mobeffectinstance.getDuration() > 20) {
-                mutablecomponent = Component.translatable("potion.withDuration", mutablecomponent, MobEffectUtil.formatDuration(mobeffectinstance, 1));
+                mutablecomponent = Component.translatable("potion.withDuration", mutablecomponent, MobEffectUtil.formatDuration(mobeffectinstance, 1, tps));
             }
 
-            return mutablecomponent.withStyle(mobeffect.getCategory().getTooltipFormatting());
+            return mutablecomponent.withStyle(mobeffect.value().getCategory().getTooltipFormatting());
         }
     }
 
@@ -152,7 +153,7 @@ public interface Failure extends CodecProvider<Failure> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("failure.gateways.summon", this.entity.getDescription()));
         }
 
@@ -186,8 +187,8 @@ public interface Failure extends CodecProvider<Failure> {
         static DecimalFormat fmt = new DecimalFormat("##.##%");
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
-            this.failure.appendHoverText(c -> {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
+            this.failure.appendHoverText(ctx, c -> {
                 list.accept(Component.translatable("failure.gateways.chance", fmt.format(this.chance * 100), c));
             });
         }
@@ -216,7 +217,7 @@ public interface Failure extends CodecProvider<Failure> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable(this.desc));
         }
     }

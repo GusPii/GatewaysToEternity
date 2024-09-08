@@ -17,10 +17,10 @@ import dev.shadowsoffire.gateways.gate.GatewayRegistry;
 import dev.shadowsoffire.gateways.gate.SpawnAlgorithms;
 import dev.shadowsoffire.gateways.gate.SpawnAlgorithms.SpawnAlgorithm;
 import dev.shadowsoffire.gateways.gate.Wave;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
@@ -33,10 +33,10 @@ public record EndlessGateway(Size size, TextColor color, Wave baseWave, List<End
             TextColor.CODEC.fieldOf("color").forGetter(EndlessGateway::color),
             Wave.CODEC.fieldOf("base_wave").forGetter(EndlessGateway::baseWave),
             EndlessModifier.CODEC.listOf().fieldOf("modifiers").forGetter(EndlessGateway::modifiers),
-            PlaceboCodecs.nullableField(Failure.CODEC.listOf(), "failures", Collections.emptyList()).forGetter(EndlessGateway::failures),
-            PlaceboCodecs.nullableField(SpawnAlgorithms.CODEC, "spawn_algorithm", SpawnAlgorithms.OPEN_FIELD).forGetter(EndlessGateway::spawnAlgo),
-            PlaceboCodecs.nullableField(GateRules.CODEC, "rules", GateRules.DEFAULT).forGetter(EndlessGateway::rules),
-            PlaceboCodecs.nullableField(BossEventSettings.CODEC, "boss_event", BossEventSettings.DEFAULT).forGetter(EndlessGateway::bossSettings))
+            Failure.CODEC.listOf().optionalFieldOf("failures", Collections.emptyList()).forGetter(EndlessGateway::failures),
+            SpawnAlgorithms.CODEC.optionalFieldOf("spawn_algorithm", SpawnAlgorithms.OPEN_FIELD).forGetter(EndlessGateway::spawnAlgo),
+            GateRules.CODEC.optionalFieldOf("rules", GateRules.DEFAULT).forGetter(EndlessGateway::rules),
+            BossEventSettings.CODEC.optionalFieldOf("boss_event", BossEventSettings.DEFAULT).forGetter(EndlessGateway::bossSettings))
         .apply(inst, EndlessGateway::new));
 
     @Override
@@ -45,8 +45,8 @@ public record EndlessGateway(Size size, TextColor color, Wave baseWave, List<End
     }
 
     @Override
-    public void appendPearlTooltip(Level level, List<Component> tooltips, TooltipFlag flag) {
-        EndlessGateClient.appendPearlTooltip(this, level, tooltips, flag);
+    public void appendPearlTooltip(TooltipContext ctx, List<Component> tooltips, TooltipFlag flag) {
+        EndlessGateClient.appendPearlTooltip(this, ctx, tooltips, flag);
     }
 
     @Override

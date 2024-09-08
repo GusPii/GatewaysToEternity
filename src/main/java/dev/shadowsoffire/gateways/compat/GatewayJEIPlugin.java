@@ -23,19 +23,19 @@ public class GatewayJEIPlugin implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration reg) {
-        reg.registerSubtypeInterpreter(GatewayObjects.GATE_PEARL.get(), new GateOpenerSubtypes());
+        reg.registerSubtypeInterpreter(GatewayObjects.GATE_PEARL.value(), new GateOpenerSubtypes());
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration reg) {
         Dummy d = new Dummy();
-        GatewayObjects.GATE_PEARL.get().fillItemCategory(CreativeModeTabs.searchTab(), d);
+        GatewayObjects.GATE_PEARL.value().fillItemCategory(CreativeModeTabs.searchTab(), d);
         reg.addIngredientInfo(d.list, VanillaTypes.ITEM_STACK, Component.translatable("info.gateways.gate_pearl"), Component.translatable("info.gateways.gate_pearl.2"));
     }
 
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(Gateways.MODID, "gateways");
+        return Gateways.loc("gateways");
     }
 
     private static class GateOpenerSubtypes implements IIngredientSubtypeInterpreter<ItemStack> {

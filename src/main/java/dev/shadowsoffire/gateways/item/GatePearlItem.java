@@ -13,6 +13,7 @@ import dev.shadowsoffire.placebo.tabs.ITabFiller;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +26,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 
 public class GatePearlItem extends Item implements ITabFiller {
 
@@ -78,29 +80,32 @@ public class GatePearlItem extends Item implements ITabFiller {
 
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.hasCustomHoverName()) return super.getName(stack);
+        if (stack.has(DataComponents.CUSTOM_NAME)) {
+            return super.getName(stack);
+        }
+
         DynamicHolder<Gateway> gate = getGate(stack);
         if (gate.isBound()) return Component.translatable("gateways.gate_pearl", Component.translatable(gate.getId().toString().replace(':', '.'))).withStyle(Style.EMPTY.withColor(gate.get().color()));
         return super.getName(stack);
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab group, CreativeModeTab.Output out) {
+    public void fillItemCategory(CreativeModeTab group, BuildCreativeModeTabContentsEvent event) {
         GatewayRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(Gateway::size).thenComparing(GatewayRegistry.INSTANCE::getKey)).forEach(gate -> {
             ItemStack stack = new ItemStack(this);
             setGate(stack, gate);
-            out.accept(stack);
+            event.accept(stack);
         });
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> tooltip, TooltipFlag flag) {
         DynamicHolder<Gateway> holder = GatePearlItem.getGate(stack);
         if (!holder.isBound()) {
             tooltip.add(Component.literal("Errored Gate Pearl, file a bug report detailing how you obtained this."));
         }
         else if (FMLEnvironment.dist.isClient()) {
-            holder.get().appendPearlTooltip(level, tooltip, flag);
+            holder.get().appendPearlTooltip(ctx, tooltip, flag);
         }
     }
 

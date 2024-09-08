@@ -22,13 +22,13 @@ import net.minecraft.world.level.Level;
 
 public class EndlessGatewayEntity extends GatewayEntity {
 
-    public static final EntityDataAccessor<Integer> MAX_ENEMIES = SynchedEntityData.defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> MAX_ENEMIES = SynchedEntityData.<Integer>defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MODIFIERS = SynchedEntityData.defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> MAX_WAVE_TIME = SynchedEntityData.defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> SETUP_TIME = SynchedEntityData.defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
 
     public EndlessGatewayEntity(Level level, Player placer, DynamicHolder<EndlessGateway> gate) {
-        super(GatewayObjects.ENDLESS_GATEWAY.get(), level, placer, gate);
+        super(GatewayObjects.ENDLESS_GATEWAY.value(), level, placer, gate);
     }
 
     public EndlessGatewayEntity(EntityType<?> type, Level level) {
@@ -159,12 +159,12 @@ public class EndlessGatewayEntity extends GatewayEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(MAX_ENEMIES, -1);
-        this.entityData.define(MODIFIERS, -1);
-        this.entityData.define(MAX_WAVE_TIME, -1);
-        this.entityData.define(SETUP_TIME, -1);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(MAX_ENEMIES, -1);
+        builder.define(MODIFIERS, -1);
+        builder.define(MAX_WAVE_TIME, -1);
+        builder.define(SETUP_TIME, -1);
     }
 
     @Override
