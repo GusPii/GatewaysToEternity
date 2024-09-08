@@ -4,14 +4,14 @@ import dev.shadowsoffire.gateways.command.GatewayCommand;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.MobSpawnEvent.AllowDespawn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 
 public class GatewayEvents {
 
@@ -42,7 +42,7 @@ public class GatewayEvents {
     }
 
     @SubscribeEvent
-    public void hurt(LivingHurtEvent e) {
+    public void hurt(LivingIncomingDamageEvent e) {
         GatewayEntity gate = GatewayEntity.getOwner(e.getEntity());
         if (gate != null) {
             boolean isPlayerDamage = e.getSource().getEntity() instanceof Player p && !(p instanceof FakePlayer);
@@ -51,8 +51,10 @@ public class GatewayEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void despawn(AllowDespawn e) {
-        if (GatewayEntity.getOwner(e.getEntity()) != null) e.setResult(Result.DENY);
+    public void despawn(MobDespawnEvent e) {
+        if (GatewayEntity.getOwner(e.getEntity()) != null) {
+            e.setResult(MobDespawnEvent.Result.DENY);
+        }
     }
 
 }

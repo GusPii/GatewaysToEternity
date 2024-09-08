@@ -15,6 +15,7 @@ import com.mojang.authlib.GameProfile;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
 import dev.shadowsoffire.gateways.Gateways;
+import dev.shadowsoffire.gateways.client.GatewayTickableSound;
 import dev.shadowsoffire.gateways.client.ParticleHandler;
 import dev.shadowsoffire.gateways.event.GateEvent;
 import dev.shadowsoffire.gateways.gate.GateRules;
@@ -23,11 +24,9 @@ import dev.shadowsoffire.gateways.gate.GatewayRegistry;
 import dev.shadowsoffire.gateways.gate.SpawnAlgorithms.SpawnAlgorithm;
 import dev.shadowsoffire.gateways.gate.Wave;
 import dev.shadowsoffire.gateways.gate.normal.NormalGateway;
-import dev.shadowsoffire.gateways.net.ParticleMessage;
-import dev.shadowsoffire.placebo.network.PacketDistro;
+import dev.shadowsoffire.gateways.payloads.ParticlePayload;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -62,6 +61,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class GatewayEntity extends Entity implements IEntityWithComplexSpawn {
 
@@ -170,7 +170,7 @@ public abstract class GatewayEntity extends Entity implements IEntityWithComplex
                         return;
                     }
                     if (entity.tickCount > 30) {
-                        this.spawnParticle(entity.getX(), entity.getY() + entity.getBbHeight() / 2, entity.getZ(), ParticleMessage.Type.IDLE);
+                        this.spawnParticle(entity.getX(), entity.getY() + entity.getBbHeight() / 2, entity.getZ(), ParticlePayload.EffectType.IDLE);
                     }
                     if (this.isOutOfRange(entity)) {
                         if (this.getGateway().rules().failOnOutOfBounds() || !this.respawnEntity(entity)) {
@@ -423,8 +423,8 @@ public abstract class GatewayEntity extends Entity implements IEntityWithComplex
         this.clientScale = clientScale;
     }
 
-    public void spawnParticle(double x, double y, double z, ParticleMessage.Type type) {
-        PacketDistro.sendToTracking(Gateways.CHANNEL, new ParticleMessage(this, x, y, z, this.getGateway().color(), type), (ServerLevel) this.level(), new BlockPos((int) x, (int) y, (int) z));
+    public void spawnParticle(double x, double y, double z, ParticlePayload.EffectType type) {
+        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) this.level(), this.chunkPosition(), new ParticlePayload(this, x, y, z, this.getGateway().color(), type));
     }
 
     public void spawnItem(ItemStack stack) {
@@ -454,6 +454,7 @@ public abstract class GatewayEntity extends Entity implements IEntityWithComplex
         this.gate = GatewayRegistry.INSTANCE.holder(buf.readResourceLocation());
         if (!this.gate.isBound()) throw new RuntimeException("Invalid gateway received on client!");
         this.refreshDimensions();
+        GatewayTickableSound.startGatewaySound(this);
     }
 
     @Override
@@ -520,9 +521,9 @@ public abstract class GatewayEntity extends Entity implements IEntityWithComplex
         Vec3 pos = algo.spawn((ServerLevel) this.level(), this.position(), this, entity);
         if (pos == null) return false;
         entity.resetFallDistance();
-        this.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticleMessage.Type.SPAWNED);
+        this.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticlePayload.EffectType.SPAWNED);
         entity.setPos(pos);
-        this.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticleMessage.Type.SPAWNED);
+        this.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticlePayload.EffectType.SPAWNED);
         if (entity instanceof Mob mob) {
             Player p = summonerOrClosest();
             if (!(p instanceof FakePlayer)) mob.setTarget(p);

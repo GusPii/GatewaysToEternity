@@ -53,9 +53,9 @@ public interface Reward extends CodecProvider<Reward> {
     public static final CodecMap<Reward> CODEC = new CodecMap<>("Gateway Reward");
 
     /**
-     * Method ref to public net.minecraft.world.entity.LivingEntity m_7625_(Lnet/minecraft/world/damagesource/DamageSource;Z)V # dropFromLootTable
+     * Method ref to public net.minecraft.world.entity.LivingEntity dropFromLootTable(Lnet/minecraft/world/damagesource/DamageSource;Z)V # dropFromLootTable
      */
-    public static final Method dropFromLootTable = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "m_7625_", DamageSource.class, boolean.class);
+    public static final Method dropFromLootTable = ObfuscationReflectionHelper.findMethod(LivingEntity.class, "dropFromLootTable", DamageSource.class, boolean.class);
     public static final MethodHandle DROP_LOOT = lootMethodHandle();
 
     /**

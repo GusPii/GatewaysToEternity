@@ -59,7 +59,7 @@ public class NormalGateClient {
                 comp = AttributeHelper.list().append(Component.translatable("tooltip.gateways.modifiers").withStyle(ChatFormatting.RED));
                 tooltips.add(comp);
                 for (WaveModifier modif : wave.modifiers()) {
-                    modif.appendHoverText(c -> {
+                    modif.appendHoverText(ctx, c -> {
                         tooltips.add(AttributeHelper.list().append(Component.translatable("tooltip.gateways.dot", c.withStyle(ChatFormatting.RED)).withStyle(s -> s.withColor(ChatFormatting.RED))));
                     });
                 }

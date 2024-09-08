@@ -57,7 +57,7 @@ public class EndlessGateClient {
             comp = AttributeHelper.list().append(Component.translatable("tooltip.gateways.modifiers").withStyle(ChatFormatting.RED));
             tooltips.add(comp);
             for (WaveModifier modif : wave.modifiers()) {
-                modif.appendHoverText(c -> {
+                modif.appendHoverText(ctx, c -> {
                     tooltips.add(AttributeHelper.list().append(Component.translatable("tooltip.gateways.dot", c.withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.RED)));
                 });
             }
@@ -108,7 +108,7 @@ public class EndlessGateClient {
                 comp = AttributeHelper.list().append(Component.translatable("tooltip.gateways.modifiers").withStyle(ChatFormatting.RED));
                 tooltips.add(comp);
                 for (WaveModifier waveModif : modif.modifiers()) {
-                    waveModif.appendHoverText(c -> {
+                    waveModif.appendHoverText(ctx, c -> {
                         tooltips.add(AttributeHelper.list().append(Component.translatable("tooltip.gateways.dot", c.withStyle(ChatFormatting.RED)).withStyle(ChatFormatting.RED)));
                     });
                 }

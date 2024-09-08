@@ -2,9 +2,11 @@ package dev.shadowsoffire.gateways.item;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import dev.shadowsoffire.gateways.GatewayObjects;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.gateways.gate.Gateway;
 import dev.shadowsoffire.gateways.gate.GatewayRegistry;
@@ -16,7 +18,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -71,11 +72,11 @@ public class GatePearlItem extends Item implements ITabFiller {
     }
 
     public static void setGate(ItemStack opener, Gateway gate) {
-        opener.getOrCreateTag().putString("gateway", GatewayRegistry.INSTANCE.getKey(gate).toString());
+        opener.set(GatewayObjects.GATEWAY_COMPONENT, GatewayRegistry.INSTANCE.holder(gate));
     }
 
     public static DynamicHolder<Gateway> getGate(ItemStack opener) {
-        return GatewayRegistry.INSTANCE.holder(new ResourceLocation(opener.getOrCreateTag().getString("gateway")));
+        return opener.getOrDefault(GatewayObjects.GATEWAY_COMPONENT, GatewayRegistry.INSTANCE.emptyHolder());
     }
 
     @Override
@@ -91,11 +92,7 @@ public class GatePearlItem extends Item implements ITabFiller {
 
     @Override
     public void fillItemCategory(CreativeModeTab group, BuildCreativeModeTabContentsEvent event) {
-        GatewayRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(Gateway::size).thenComparing(GatewayRegistry.INSTANCE::getKey)).forEach(gate -> {
-            ItemStack stack = new ItemStack(this);
-            setGate(stack, gate);
-            event.accept(stack);
-        });
+        generateGatePearlStacks(event::accept);
     }
 
     @Override
@@ -109,14 +106,22 @@ public class GatePearlItem extends Item implements ITabFiller {
         }
     }
 
-    @Override
     @Nullable
+    @Override
     public String getCreatorModId(ItemStack stack) {
         DynamicHolder<Gateway> gate = getGate(stack);
         if (gate.isBound()) {
             return gate.getId().getNamespace();
         }
         return super.getCreatorModId(stack);
+    }
+
+    public static void generateGatePearlStacks(Consumer<ItemStack> output) {
+        GatewayRegistry.INSTANCE.getValues().stream().sorted(Comparator.comparing(Gateway::size).thenComparing(GatewayRegistry.INSTANCE::getKey)).forEach(gate -> {
+            ItemStack stack = new ItemStack(GatewayObjects.GATE_PEARL);
+            setGate(stack, gate);
+            output.accept(stack);
+        });
     }
 
 }

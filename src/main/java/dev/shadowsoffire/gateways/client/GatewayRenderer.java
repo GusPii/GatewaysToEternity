@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class GatewayRenderer extends EntityRenderer<GatewayEntity> {
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(Gateways.MODID, "textures/entity/gateway.png");
+    public static final ResourceLocation TEXTURE = Gateways.loc("textures/entity/gateway.png");
 
     public GatewayRenderer(EntityRendererProvider.Context mgr) {
         super(mgr);
@@ -86,10 +86,10 @@ public class GatewayRenderer extends EntityRenderer<GatewayEntity> {
         int r = color >> 16 & 255, g = color >> 8 & 255, b = color & 255;
         float frameHeight = 1 / 9F;
         int frame = gate.tickCount % 9;
-        builder.vertex(matrix.last().pose(), -1, -1, 0).color(r, g, b, 255).uv(1, 1 - frame * frameHeight).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(matrix.last().normal(), 0, 1, 0).endVertex();
-        builder.vertex(matrix.last().pose(), -1, 1, 0).color(r, g, b, 255).uv(1, 8F / 9 - frame * frameHeight).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(matrix.last().normal(), 0, 1, 0).endVertex();
-        builder.vertex(matrix.last().pose(), 1, 1, 0).color(r, g, b, 255).uv(0, 8F / 9 - frame * frameHeight).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(matrix.last().normal(), 0, 1, 0).endVertex();
-        builder.vertex(matrix.last().pose(), 1, -1, 0).color(r, g, b, 255).uv(0, 1 - frame * frameHeight).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLight).normal(matrix.last().normal(), 0, 1, 0).endVertex();
+        builder.addVertex(matrix.last().pose(), -1, -1, 0).setColor(r, g, b, 255).setUv(1, 1 - frame * frameHeight).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(0, 1, 0);
+        builder.addVertex(matrix.last().pose(), -1, 1, 0).setColor(r, g, b, 255).setUv(1, 8F / 9 - frame * frameHeight).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(0, 1, 0);
+        builder.addVertex(matrix.last().pose(), 1, 1, 0).setColor(r, g, b, 255).setUv(0, 8F / 9 - frame * frameHeight).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(0, 1, 0);
+        builder.addVertex(matrix.last().pose(), 1, -1, 0).setColor(r, g, b, 255).setUv(0, 1 - frame * frameHeight).setOverlay(OverlayTexture.NO_OVERLAY).setLight(packedLight).setNormal(0, 1, 0);
         matrix.popPose();
 
         if (gate.getGateway().bossSettings().drawAsName()) {

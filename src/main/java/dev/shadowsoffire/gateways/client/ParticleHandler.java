@@ -1,7 +1,7 @@
 package dev.shadowsoffire.gateways.client;
 
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
-import dev.shadowsoffire.gateways.net.ParticleMessage;
+import dev.shadowsoffire.gateways.payloads.ParticlePayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -10,11 +10,13 @@ import net.minecraft.world.level.Level;
 
 public class ParticleHandler {
 
-    public static void handle(ParticleMessage msg) {
-        double x = msg.x, y = msg.y, z = msg.z;
-        int color = msg.color;
-        ParticleMessage.Type type = msg.type;
-        Entity src = Minecraft.getInstance().level.getEntity(msg.gateId);
+    public static void handle(ParticlePayload msg) {
+        double x = msg.x();
+        double y = msg.y();
+        double z = msg.z();
+        int color = msg.color();
+        ParticlePayload.EffectType type = msg.effectType();
+        Entity src = Minecraft.getInstance().level.getEntity(msg.gateId());
         if (src == null) return;
         switch (type) {
             case IDLE -> {

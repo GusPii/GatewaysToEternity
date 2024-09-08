@@ -9,8 +9,8 @@ import dev.shadowsoffire.gateways.gate.Reward;
 import dev.shadowsoffire.gateways.gate.WaveEntity;
 import dev.shadowsoffire.gateways.gate.WaveModifier;
 import dev.shadowsoffire.gateways.gate.endless.ApplicationMode;
-import dev.shadowsoffire.gateways.net.ParticleMessage;
-import dev.shadowsoffire.placebo.network.MessageHelper;
+import dev.shadowsoffire.gateways.payloads.ParticlePayload;
+import dev.shadowsoffire.placebo.network.PayloadHelper;
 import dev.shadowsoffire.placebo.tabs.TabFillingRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.StatFormatter;
@@ -29,9 +29,9 @@ public class Gateways {
 
     public Gateways(IEventBus bus) {
         bus.register(this);
-        MessageHelper.registerMessage(CHANNEL, 0, new ParticleMessage.Provider());
+        PayloadHelper.registerPayload(new ParticlePayload.Provider());
         NeoForge.EVENT_BUS.register(new GatewayEvents());
-        GatewayObjects.bootstrap();
+        GatewayObjects.bootstrap(bus);
     }
 
     @SubscribeEvent
@@ -43,13 +43,13 @@ public class Gateways {
             WaveEntity.initSerializers();
             Failure.initSerializers();
             ApplicationMode.initSerializers();
-            TabFillingRegistry.register(GatewayObjects.TAB_KEY, GatewayObjects.GATE_PEARL);
-            Stats.CUSTOM.get(GatewayObjects.GATES_DEFEATED.get(), StatFormatter.DEFAULT);
+            TabFillingRegistry.register(GatewayObjects.TAB.getKey(), GatewayObjects.GATE_PEARL);
+            Stats.CUSTOM.get(GatewayObjects.GATES_DEFEATED.value(), StatFormatter.DEFAULT);
         });
     }
 
     public static ResourceLocation loc(String s) {
-        return new ResourceLocation(MODID, s);
+        return ResourceLocation.fromNamespaceAndPath(MODID, s);
     }
 
 }

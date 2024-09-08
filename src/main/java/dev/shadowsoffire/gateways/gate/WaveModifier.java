@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
 import dev.shadowsoffire.apothic_attributes.api.IFormattableAttribute;
-import dev.shadowsoffire.attributeslib.AttributesLib;
 import dev.shadowsoffire.gateways.Gateways;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
@@ -23,7 +23,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.Item.TooltipContext;
+import net.minecraft.world.item.alchemy.PotionContents;
 
 public interface WaveModifier extends CodecProvider<WaveModifier> {
 
@@ -39,7 +40,7 @@ public interface WaveModifier extends CodecProvider<WaveModifier> {
     /**
      * Adds this wave modifier to the gate pearl's tooltip.
      */
-    public void appendHoverText(Consumer<MutableComponent> list);
+    public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list);
 
     public static void initSerializers() {
         register("mob_effect", EffectModifier.CODEC);
@@ -76,9 +77,9 @@ public interface WaveModifier extends CodecProvider<WaveModifier> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             List<Component> output = new ArrayList<>();
-            PotionUtils.addPotionTooltip(Arrays.asList(this.effect.createDeterministic(1)), output, 1);
+            PotionContents.addPotionTooltip(Arrays.asList(this.effect.createDeterministic(1)), output::add, 1, ctx.tickRate());
             list.accept(Component.literal(output.get(0).getString()));
         }
 
@@ -102,12 +103,13 @@ public interface WaveModifier extends CodecProvider<WaveModifier> {
         public void apply(LivingEntity entity) {
             AttributeInstance inst = entity.getAttribute(this.modifier.attribute());
             if (inst == null) return;
-            inst.addPermanentModifier(this.modifier.createDeterministic());
+            // TODO: Figure out a better way to generate a random ID (maybe generate a full UUID?) or have users provide an identifier.
+            inst.addPermanentModifier(this.modifier.createDeterministic(Gateways.loc("gateway_random_modifier_" + entity.getRandom().nextInt())));
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
-            list.accept(IFormattableAttribute.toComponent(modifier.getAttribute(), modifier.createDeterministic(), AttributesLib.getTooltipFlag()));
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
+            list.accept(IFormattableAttribute.toComponent(modifier.attribute(), modifier.createDeterministic(Gateways.loc("gateway_random_modifier")), ApothicAttributes.getTooltipFlag()));
         }
 
     }
@@ -135,7 +137,7 @@ public interface WaveModifier extends CodecProvider<WaveModifier> {
         }
 
         @Override
-        public void appendHoverText(Consumer<MutableComponent> list) {
+        public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
             list.accept(Component.translatable("modifier.gateways.gear_set", Component.translatable(this.set.getId().toLanguageKey("gear_set"))));
         }
 

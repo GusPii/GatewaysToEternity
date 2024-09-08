@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
+import dev.shadowsoffire.gateways.gate.Gateway;
 import dev.shadowsoffire.gateways.gate.Wave;
 import dev.shadowsoffire.gateways.gate.WaveEntity;
 import dev.shadowsoffire.gateways.gate.WaveModifier;
@@ -27,8 +28,8 @@ public class EndlessGatewayEntity extends GatewayEntity {
     public static final EntityDataAccessor<Integer> MAX_WAVE_TIME = SynchedEntityData.defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> SETUP_TIME = SynchedEntityData.defineId(EndlessGatewayEntity.class, EntityDataSerializers.INT);
 
-    public EndlessGatewayEntity(Level level, Player placer, DynamicHolder<EndlessGateway> gate) {
-        super(GatewayObjects.ENDLESS_GATEWAY.value(), level, placer, gate);
+    public EndlessGatewayEntity(Level level, Player placer, DynamicHolder<Gateway> gate) {
+        super(GatewayObjects.ENDLESS_GATEWAY.get(), level, placer, gate);
     }
 
     public EndlessGatewayEntity(EntityType<?> type, Level level) {

@@ -3,6 +3,7 @@ package dev.shadowsoffire.gateways.entity;
 import com.google.common.base.Preconditions;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
+import dev.shadowsoffire.gateways.gate.Gateway;
 import dev.shadowsoffire.gateways.gate.Wave;
 import dev.shadowsoffire.gateways.gate.normal.NormalGateway;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.Level;
 
 public class NormalGatewayEntity extends GatewayEntity {
 
-    public NormalGatewayEntity(Level level, Player placer, DynamicHolder<NormalGateway> gate) {
+    public NormalGatewayEntity(Level level, Player placer, DynamicHolder<Gateway> gate) {
         super(GatewayObjects.NORMAL_GATEWAY.get(), level, placer, gate);
         this.summonerId = placer.getUUID();
         this.gate = gate;

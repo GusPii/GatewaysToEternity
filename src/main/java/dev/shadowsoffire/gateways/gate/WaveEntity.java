@@ -11,8 +11,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.shadowsoffire.gateways.Gateways;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
-import dev.shadowsoffire.placebo.codec.PlaceboCodecs;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,7 +21,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public interface WaveEntity extends CodecProvider<WaveEntity> {
 
@@ -63,12 +62,12 @@ public interface WaveEntity extends CodecProvider<WaveEntity> {
 
         public static Codec<StandardWaveEntity> CODEC = RecordCodecBuilder.create(inst -> inst
             .group(
-                ForgeRegistries.ENTITY_TYPES.getCodec().fieldOf("entity").forGetter(t -> t.type),
-                PlaceboCodecs.nullableField(Codec.STRING, "desc").forGetter(t -> Optional.of(t.desc)),
-                PlaceboCodecs.nullableField(NBTAdapter.EITHER_CODEC, "nbt").forGetter(t -> Optional.of(t.tag)),
-                PlaceboCodecs.nullableField(WaveModifier.CODEC.listOf(), "modifiers", Collections.emptyList()).forGetter(t -> t.modifiers),
-                PlaceboCodecs.nullableField(Codec.BOOL, "finalize_spawn", true).forGetter(t -> t.finalizeSpawn),
-                PlaceboCodecs.nullableField(Codec.intRange(1, 256), "count", 1).forGetter(t -> t.count))
+                BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("entity").forGetter(t -> t.type),
+                Codec.STRING.optionalFieldOf("desc").forGetter(t -> Optional.of(t.desc)),
+                NBTAdapter.EITHER_CODEC.optionalFieldOf("nbt").forGetter(t -> Optional.of(t.tag)),
+                WaveModifier.CODEC.listOf().optionalFieldOf("modifiers", Collections.emptyList()).forGetter(t -> t.modifiers),
+                Codec.BOOL.optionalFieldOf("finalize_spawn", true).forGetter(t -> t.finalizeSpawn),
+                Codec.intRange(1, 256).optionalFieldOf("count", 1).forGetter(t -> t.count))
             .apply(inst, StandardWaveEntity::new));
 
         protected final EntityType<?> type;

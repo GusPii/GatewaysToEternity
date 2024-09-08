@@ -1,28 +1,17 @@
 package dev.shadowsoffire.gateways.client;
 
-import java.util.Locale;
-
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-@SuppressWarnings("deprecation")
-public class GatewayParticleData implements ParticleOptions {
-
-    public final float red, green, blue;
-
-    public GatewayParticleData(float r, float g, float b) {
-        this.red = r;
-        this.green = g;
-        this.blue = b;
-    }
+public record GatewayParticleData(float red, float green, float blue) implements ParticleOptions {
 
     public GatewayParticleData(int r, int g, int b) {
         this(r / 255F, g / 255F, b / 255F);
@@ -30,44 +19,19 @@ public class GatewayParticleData implements ParticleOptions {
 
     @Override
     public ParticleType<GatewayParticleData> getType() {
-        return GatewayObjects.GLOW;
+        return GatewayObjects.GLOW.get();
     }
 
-    public static final Codec<GatewayParticleData> CODEC = RecordCodecBuilder.create(builder -> builder.group(Codec.FLOAT.fieldOf("r").forGetter((data) -> {
-        return data.red;
-    }), Codec.FLOAT.fieldOf("g").forGetter((data) -> {
-        return data.green;
-    }), Codec.FLOAT.fieldOf("b").forGetter((data) -> {
-        return data.blue;
-    })).apply(builder, GatewayParticleData::new));
+    public static final MapCodec<GatewayParticleData> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
+        Codec.FLOAT.fieldOf("r").forGetter(GatewayParticleData::red),
+        Codec.FLOAT.fieldOf("g").forGetter(GatewayParticleData::green),
+        Codec.FLOAT.fieldOf("b").forGetter(GatewayParticleData::blue))
+        .apply(inst, GatewayParticleData::new));
 
-    public static final ParticleOptions.Deserializer<GatewayParticleData> DESERIALIZER = new ParticleOptions.Deserializer<>(){
-        @Override
-        public GatewayParticleData fromCommand(ParticleType<GatewayParticleData> type, StringReader reader) throws CommandSyntaxException {
-            reader.expect(' ');
-            float f = (float) reader.readDouble();
-            reader.expect(' ');
-            float f1 = (float) reader.readDouble();
-            reader.expect(' ');
-            float f2 = (float) reader.readDouble();
-            return new GatewayParticleData(f, f1, f2);
-        }
+    public static final StreamCodec<ByteBuf, GatewayParticleData> STREAM_CODEC = StreamCodec.composite(
+        ByteBufCodecs.FLOAT, GatewayParticleData::red,
+        ByteBufCodecs.FLOAT, GatewayParticleData::green,
+        ByteBufCodecs.FLOAT, GatewayParticleData::blue,
+        GatewayParticleData::new);
 
-        @Override
-        public GatewayParticleData fromNetwork(ParticleType<GatewayParticleData> type, FriendlyByteBuf buf) {
-            return new GatewayParticleData(buf.readFloat(), buf.readFloat(), buf.readFloat());
-        }
-    };
-
-    @Override
-    public void writeToNetwork(FriendlyByteBuf buffer) {
-        buffer.writeFloat(this.red);
-        buffer.writeFloat(this.green);
-        buffer.writeFloat(this.blue);
-    }
-
-    @Override
-    public String writeToString() {
-        return String.format(Locale.ROOT, "%s %.2f %.2f %.2f", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()), this.red, this.green, this.blue);
-    }
 }

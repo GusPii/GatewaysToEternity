@@ -12,7 +12,7 @@ import dev.shadowsoffire.gateways.Gateways;
 import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.gateways.entity.GatewayEntity.FailureReason;
 import dev.shadowsoffire.gateways.event.GateEvent;
-import dev.shadowsoffire.gateways.net.ParticleMessage;
+import dev.shadowsoffire.gateways.payloads.ParticlePayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -146,7 +146,7 @@ public record Wave(List<WaveEntity> entities, List<WaveModifier> modifiers, List
         NeoForge.EVENT_BUS.post(new GateEvent.WaveEntitySpawned(gate, entity));
         level.addFreshEntityWithPassengers(entity);
         level.playSound(null, gate.getX(), gate.getY(), gate.getZ(), GatewayObjects.GATE_WARP, SoundSource.HOSTILE, 0.5F, 1);
-        gate.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticleMessage.Type.SPAWNED);
+        gate.spawnParticle(entity.getX(), entity.getY(), entity.getZ(), ParticlePayload.EffectType.SPAWNED);
         return entity;
     }
 

@@ -2,6 +2,9 @@ package dev.shadowsoffire.gateways.compat;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
 import dev.shadowsoffire.gateways.Gateways;
+import dev.shadowsoffire.gateways.gate.Gateway;
+import dev.shadowsoffire.gateways.item.GatePearlItem;
+import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -10,13 +13,10 @@ import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTab.TabVisibility;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 @JeiPlugin
 public class GatewayJEIPlugin implements IModPlugin {
@@ -28,9 +28,9 @@ public class GatewayJEIPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration reg) {
-        Dummy d = new Dummy();
-        GatewayObjects.GATE_PEARL.value().fillItemCategory(CreativeModeTabs.searchTab(), d);
-        reg.addIngredientInfo(d.list, VanillaTypes.ITEM_STACK, Component.translatable("info.gateways.gate_pearl"), Component.translatable("info.gateways.gate_pearl.2"));
+        NonNullList<ItemStack> list = NonNullList.create();
+        GatePearlItem.generateGatePearlStacks(list::add);
+        reg.addIngredientInfo(list, VanillaTypes.ITEM_STACK, Component.translatable("info.gateways.gate_pearl"), Component.translatable("info.gateways.gate_pearl.2"));
     }
 
     @Override
@@ -42,21 +42,11 @@ public class GatewayJEIPlugin implements IModPlugin {
 
         @Override
         public String apply(ItemStack stack, UidContext context) {
-            if (stack.hasTag() && stack.getTag().contains("gateway")) {
-                return stack.getTag().getString("gateway");
+            DynamicHolder<Gateway> holder = GatePearlItem.getGate(stack);
+            if (holder.isBound()) {
+                return holder.getId().toString();
             }
-            return ForgeRegistries.ITEMS.getKey(stack.getItem()).toString();
-        }
-
-    }
-
-    private static class Dummy implements CreativeModeTab.Output {
-
-        NonNullList<ItemStack> list = NonNullList.create();
-
-        @Override
-        public void accept(ItemStack pStack, TabVisibility pTabVisibility) {
-            this.list.add(pStack);
+            return BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
         }
 
     }

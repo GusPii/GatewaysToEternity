@@ -20,7 +20,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -28,9 +27,11 @@ import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.CustomizeGuiOverlayEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = Gateways.MODID)
@@ -39,16 +40,16 @@ public class GatewaysClient {
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e) {
         e.enqueueWork(() -> {
-            ItemProperties.register(GatewayObjects.GATE_PEARL.get(), new ResourceLocation(Gateways.MODID, "size"), (stack, level, entity, seed) -> {
+            ItemProperties.register(GatewayObjects.GATE_PEARL.value(), Gateways.loc("size"), (stack, level, entity, seed) -> {
                 DynamicHolder<Gateway> gate = GatePearlItem.getGate(stack);
                 if (gate.isBound()) return gate.get().size().ordinal();
                 return 2;
             });
         });
-        MinecraftForge.EVENT_BUS.addListener(GatewaysClient::bossRenderPre);
-        MinecraftForge.EVENT_BUS.addListener(GatewaysClient::tooltip);
-        MinecraftForge.EVENT_BUS.addListener(GatewaysClient::scroll);
-        MinecraftForge.EVENT_BUS.addListener(GatewaysClient::scroll2);
+        NeoForge.EVENT_BUS.addListener(GatewaysClient::bossRenderPre);
+        NeoForge.EVENT_BUS.addListener(GatewaysClient::tooltip);
+        NeoForge.EVENT_BUS.addListener(GatewaysClient::scroll);
+        NeoForge.EVENT_BUS.addListener(GatewaysClient::scroll2);
     }
 
     @SubscribeEvent
@@ -57,7 +58,7 @@ public class GatewaysClient {
             DynamicHolder<Gateway> gate = GatePearlItem.getGate(stack);
             if (gate.isBound()) return gate.get().color().getValue();
             return 0xAAAAFF;
-        }, GatewayObjects.GATE_PEARL.get());
+        }, GatewayObjects.GATE_PEARL.value());
     }
 
     @SubscribeEvent
@@ -76,15 +77,15 @@ public class GatewaysClient {
     private static long tooltipTick = 0;
 
     public static void scroll(ScreenEvent.MouseScrolled.Pre e) {
-        if (currentTooltipItem.getItem() == GatewayObjects.GATE_PEARL.get() && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
-            scrollIdx += e.getScrollDelta() < 0 ? 1 : -1;
+        if (currentTooltipItem.is(GatewayObjects.GATE_PEARL) && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
+            scrollIdx += e.getScrollDeltaY() < 0 ? 1 : -1;
             e.setCanceled(true);
         }
     }
 
     public static void scroll2(InputEvent.MouseScrollingEvent e) {
-        if (currentTooltipItem.getItem() == GatewayObjects.GATE_PEARL.get() && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
-            scrollIdx += e.getScrollDelta() < 0 ? 1 : -1;
+        if (currentTooltipItem.is(GatewayObjects.GATE_PEARL) && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
+            scrollIdx += e.getScrollDeltaY() < 0 ? 1 : -1;
             e.setCanceled(true);
         }
     }
@@ -96,7 +97,7 @@ public class GatewaysClient {
         tooltipTick = PlaceboClient.ticks;
     }
 
-    public static final ResourceLocation BARS = new ResourceLocation("textures/gui/bars.png");
+    public static final ResourceLocation BARS = ResourceLocation.withDefaultNamespace("textures/gui/bars.png");
 
     public static void bossRenderPre(CustomizeGuiOverlayEvent.BossEventProgress event) {
         BossEvent boss = event.getBossEvent();
