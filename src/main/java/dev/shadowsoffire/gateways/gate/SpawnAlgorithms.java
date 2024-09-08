@@ -35,6 +35,10 @@ public class SpawnAlgorithms {
         Vec3 spawn(ServerLevel level, Vec3 pos, GatewayEntity gate, Entity toSpawn);
     }
 
+    /**
+     * This reference must be a static final field so that the same object can be provided to {@link #register(ResourceLocation, SpawnAlgorithm)}
+     * and also passed as the default value in the gateway codecs. Attempting to use the raw method reference in both places will fail the lookup.
+     */
     public static final SpawnAlgorithm OPEN_FIELD = SpawnAlgorithms::openField;
     public static final SpawnAlgorithm INWARD_SPIRAL = SpawnAlgorithms::inwardSpiral;
 
