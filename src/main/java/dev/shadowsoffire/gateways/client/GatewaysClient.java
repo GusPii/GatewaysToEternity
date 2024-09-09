@@ -47,6 +47,12 @@ public class GatewaysClient {
     @Nullable
     public static Rect2i bossBarRect = null;
 
+    static int scrollIdx = 0;
+    static RandomSource rand = RandomSource.create();
+
+    private static ItemStack currentTooltipItem = ItemStack.EMPTY;
+    private static long tooltipTick = 0;
+
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e) {
         e.enqueueWork(() -> {
@@ -85,10 +91,6 @@ public class GatewaysClient {
         e.registerSprite(GatewayObjects.GLOW.get(), GatewayParticle::new);
     }
 
-    static int scrollIdx = 0;
-    private static ItemStack currentTooltipItem = ItemStack.EMPTY;
-    private static long tooltipTick = 0;
-
     public static void scroll(ScreenEvent.MouseScrolled.Pre e) {
         if (currentTooltipItem.is(GatewayObjects.GATE_PEARL) && tooltipTick == PlaceboClient.ticks && Screen.hasShiftDown()) {
             scrollIdx += e.getScrollDeltaY() < 0 ? 1 : -1;
@@ -102,8 +104,6 @@ public class GatewaysClient {
             e.setCanceled(true);
         }
     }
-
-    static RandomSource rand = RandomSource.create();
 
     public static void tooltip(ItemTooltipEvent e) {
         currentTooltipItem = e.getItemStack();
