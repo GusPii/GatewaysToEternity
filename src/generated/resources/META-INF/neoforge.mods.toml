@@ -39,3 +39,10 @@ config="gateways.mixins.json"
     versionRange="[9.5.1,)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.gateways]]
+    modId="apothic_attributes"
+    type="required"
+    versionRange="[2.3.0,)"
+    ordering="NONE"
+    side="BOTH"

@@ -38,3 +38,10 @@ ${mixinConfig}
     versionRange="[${placeboVersion},)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.${modid}]]
+    modId="apothic_attributes"
+    type="required"
+    versionRange="[${attributeslibVersion},)"
+    ordering="NONE"
+    side="BOTH"
