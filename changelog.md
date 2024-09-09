@@ -1,3 +1,7 @@
+## 5.0.0
+* Updated to Minecraft 1.21.1.
+* Added a workaround for Jade not displaying properly when Gateway boss bars were shown.
+
 ## 4.2.6
 * Quarkrus: Added russian translation.
 
