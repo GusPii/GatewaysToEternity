@@ -21,27 +21,27 @@
 			}],
 			"modifiers": [{
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.15
 				},
 				{
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 2
 				},
 				{
 					"attribute": "generic.attack_damage",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.15
 				},
 				{
 					"attribute": "generic.knockback_resistance",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 0.05
 				},
 				{
 					"attribute": "generic.movement_speed",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.05
 				}
 			],
@@ -61,27 +61,27 @@
 			],
 			"modifiers": [{
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.20
 				},
 				{
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 3
 				},
 				{
 					"attribute": "generic.attack_damage",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.20
 				},
 				{
 					"attribute": "generic.knockback_resistance",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 0.15
 				},
 				{
 					"attribute": "generic.movement_speed",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.10
 				}
 			],
@@ -101,27 +101,27 @@
 			],
 			"modifiers": [{
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.25
 				},
 				{
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 5
 				},
 				{
 					"attribute": "generic.attack_damage",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.30
 				},
 				{
 					"attribute": "generic.knockback_resistance",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 0.15
 				},
 				{
 					"attribute": "generic.movement_speed",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.15
 				}
 			],
@@ -141,27 +141,27 @@
 			],
 			"modifiers": [{
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.35
 				},
 				{
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 5
 				},
 				{
 					"attribute": "generic.attack_damage",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.50
 				},
 				{
 					"attribute": "generic.knockback_resistance",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 0.20
 				},
 				{
 					"attribute": "generic.movement_speed",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.15
 				}
 			],

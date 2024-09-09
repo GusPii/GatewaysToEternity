@@ -11,21 +11,23 @@
       "item": "minecraft:blaze_rod"
     },
 	"A": {
-      "type": "forge:partial_nbt",
-      "item": "gateways:gate_pearl",
-      "nbt": {
-          "gateway": "gateways:basic/blaze"
+      "type": "neoforge:components",
+      "items": [
+        "gateways:gate_pearl"
+      ],
+      "components": {
+          "gateways:gateway": "gateways:basic/blaze"
       }
     },
 	"B": {
       "item": "minecraft:magma_cream"
     },
 	"N": {
-      "tag": "forge:gems/emerald"
+      "tag": "c:gems/emerald"
     }
   },
   "result": {
-    "item": "gateways:gate_pearl"
+    "id": "gateways:gate_pearl"
   },
   "gateway": "gateways:endless/blaze"
 }

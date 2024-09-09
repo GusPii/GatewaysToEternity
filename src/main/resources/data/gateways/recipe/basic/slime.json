@@ -20,15 +20,19 @@
       "item": "minecraft:brown_mushroom"
     },
 	"W": {
-      "type": "forge:partial_nbt",
-      "item": "minecraft:potion",
-      "nbt": {
-          "Potion": "minecraft:water"
+      "type": "neoforge:components",
+      "items": [
+        "minecraft:potion"
+      ],
+      "components": {
+        "potion_contents": {
+          "potion": "water"
+        }
       }
     }
   },
   "result": {
-    "item": "gateways:gate_pearl"
+    "id": "gateways:gate_pearl"
   },
   "gateway": "gateways:basic/slime"
 }

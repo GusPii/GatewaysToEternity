@@ -15,7 +15,7 @@
     }
   },
   "result": {
-    "item": "gateways:gate_pearl"
+    "id": "gateways:gate_pearl"
   },
   "gateway": "gateways:emerald_grove"
 }

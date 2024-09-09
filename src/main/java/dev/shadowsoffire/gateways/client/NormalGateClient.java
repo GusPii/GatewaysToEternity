@@ -24,7 +24,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
@@ -33,8 +32,6 @@ import net.minecraft.world.item.TooltipFlag;
  * Client code specific to {@link NormalGateway}
  */
 public class NormalGateClient {
-
-    public static final ResourceLocation BARS = GatewaysClient.BARS;
 
     public static void appendPearlTooltip(NormalGateway gate, TooltipContext ctx, List<Component> tooltips, TooltipFlag flag) {
         MutableComponent comp;
@@ -143,9 +140,9 @@ public class NormalGateClient {
         int y2 = y + 10 + Minecraft.getInstance().font.lineHeight;
 
         pose.pushPose();
-        pose.translate(0, 0, 0.01);
-        gfx.blit(BARS, x, y, 0, 6 * 5 * 2, 182, 5, 256, 256);
-        gfx.blit(BARS, x, y2, 0, 6 * 5 * 2, 182, 5, 256, 256);
+        pose.translate(0, 0, -0.01);
+        gfx.blitSprite(GatewaysClient.WHITE_BACKGROUND, x, y, 182, 5);
+        gfx.blitSprite(GatewaysClient.WHITE_BACKGROUND, x, y2, 182, 5);
         pose.popPose();
 
         float waveProgress = 1F / maxWave;
@@ -153,17 +150,17 @@ public class NormalGateClient {
         if (gate.isWaveActive()) progress -= waveProgress * ((float) (maxEnemies - enemies) / maxEnemies);
 
         int i = (int) (progress * 183.0F);
-        if (i > 0) gfx.blit(BARS, x, y, 0, 6 * 5 * 2 + 5, i, 5, 256, 256);
+        if (i > 0) gfx.blitSprite(GatewaysClient.WHITE_PROGRESS, 182, 5, 0, 0, x, y, i, 5);
 
         float maxTime = gate.getMaxWaveTime();
         if (gate.isWaveActive()) {
             i = (int) ((maxTime - gate.getTicksActive()) / maxTime * 183.0F);
-            if (i > 0) gfx.blit(BARS, x, y2, 0, 6 * 5 * 2 + 5, i, 5, 256, 256);
+            if (i > 0) gfx.blitSprite(GatewaysClient.WHITE_PROGRESS, 182, 5, 0, 0, x, y2, i, 5);
         }
         else {
             maxTime = gate.getSetupTime();
             i = (int) (gate.getTicksActive() / maxTime * 183.0F);
-            if (i > 0) gfx.blit(BARS, x, y2, 0, 6 * 5 * 2 + 5, i, 5, 256, 256);
+            if (i > 0) gfx.blitSprite(GatewaysClient.WHITE_PROGRESS,  182, 5, 0, 0,x, y2, i, 5);
         }
 
         RenderSystem.setShaderColor(1, 1, 1, 1);

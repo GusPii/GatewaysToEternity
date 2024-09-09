@@ -11,7 +11,7 @@
 			"modifiers": [
                 {
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.25
 				}
             ],
@@ -19,7 +19,7 @@
                 {
                     "type": "gateways:stack",
                     "stack": {
-                        "item": "minecraft:hay_block",
+                        "id": "minecraft:hay_block",
                         "count": 16
                     }
                 }
@@ -37,27 +37,27 @@
 			"modifiers": [
                 {
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.20
 				},
                 {
 					"attribute": "generic.movement_speed",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.05
 				},
                 {
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 4
 				},
                 {
 					"attribute": "generic.attack_damage",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 2.5
 				},
                 {
-					"attribute": "attributeslib:armor_pierce",
-					"operation": "ADDITION",
+					"attribute": "apothic_attributes:armor_pierce",
+					"operation": "add_value",
 					"value": 2
 				}
             ],
@@ -65,15 +65,15 @@
 				"type": "gateways:stack_list",
 				"stacks": [
                     {
-                        "item": "minecraft:cactus",
+                        "id": "minecraft:cactus",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:sugar_cane",
+                        "id": "minecraft:sugar_cane",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:bamboo",
+                        "id": "minecraft:bamboo",
                         "count": 16
                     }
                 ]
@@ -95,32 +95,32 @@
 			"modifiers": [
                 {
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.35
 				},
                 {
 					"attribute": "generic.movement_speed",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.15
 				},
                 {
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 5
 				},
                 {
 					"attribute": "generic.attack_damage",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 2.5
 				},
                 {
-					"attribute": "attributeslib:armor_pierce",
-					"operation": "ADDITION",
+					"attribute": "apothic_attributes:armor_pierce",
+					"operation": "add_value",
 					"value": 3
 				},
                 {
-					"attribute": "attributeslib:life_steal",
-					"operation": "ADDITION",
+					"attribute": "apothic_attributes:life_steal",
+					"operation": "add_value",
 					"value": 0.10
 				}
             ],
@@ -128,19 +128,19 @@
 				"type": "gateways:stack_list",
 				"stacks": [
                     {
-                        "item": "minecraft:carrot",
+                        "id": "minecraft:carrot",
                         "count": 32
                     },
                     {
-                        "item": "minecraft:potato",
+                        "id": "minecraft:potato",
                         "count": 32
                     },
                     {
-                        "item": "minecraft:apple",
+                        "id": "minecraft:apple",
                         "count": 32
                     },
                     {
-                        "item": "minecraft:beetroot",
+                        "id": "minecraft:beetroot",
                         "count": 32
                     }
                 ]
@@ -180,32 +180,32 @@
 			"modifiers": [
                 {
 					"attribute": "generic.max_health",
-					"operation": "MULTIPLY_TOTAL",
+					"operation": "add_multiplied_total",
 					"value": 0.40
 				},
                 {
 					"attribute": "generic.knockback_resistance",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 0.5
 				},
                 {
 					"attribute": "generic.armor",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 5
 				},
                 {
 					"attribute": "generic.attack_damage",
-					"operation": "ADDITION",
+					"operation": "add_value",
 					"value": 4
 				},
                 {
-					"attribute": "attributeslib:armor_pierce",
-					"operation": "ADDITION",
+					"attribute": "apothic_attributes:armor_pierce",
+					"operation": "add_value",
 					"value": 3
 				},
                 {
-					"attribute": "attributeslib:life_steal",
-					"operation": "ADDITION",
+					"attribute": "apothic_attributes:life_steal",
+					"operation": "add_value",
 					"value": 0.10
 				}
             ],
@@ -213,27 +213,27 @@
 				"type": "gateways:stack_list",
 				"stacks": [
                     {
-                        "item": "minecraft:oak_sapling",
+                        "id": "minecraft:oak_sapling",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:birch_sapling",
+                        "id": "minecraft:birch_sapling",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:spruce_sapling",
+                        "id": "minecraft:spruce_sapling",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:dark_oak_sapling",
+                        "id": "minecraft:dark_oak_sapling",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:acacia_sapling",
+                        "id": "minecraft:acacia_sapling",
                         "count": 16
                     },
                     {
-                        "item": "minecraft:cherry_sapling",
+                        "id": "minecraft:cherry_sapling",
                         "count": 16
                     }
                 ]

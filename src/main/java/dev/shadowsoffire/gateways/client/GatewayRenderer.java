@@ -96,7 +96,8 @@ public class GatewayRenderer extends EntityRenderer<GatewayEntity> {
             matrix.pushPose();
 
             matrix.translate(0.0F, gate.getBbHeight() + 1, 0.0F);
-            matrix.mulPose(this.entityRenderDispatcher.cameraOrientation());
+            matrix.mulPose(new Quaternionf().rotationAxis(Mth.DEG_TO_RAD * 90, 0, 1, 0));
+            matrix.mulPose(new Quaternionf().rotationAxis(Mth.DEG_TO_RAD * (180F - (float) angleOf(portal, playerV)), 0, 1, 0));
             matrix.scale(-0.02F, -0.02F, 0.02F);
             GuiGraphics gfx = new GuiGraphics(Minecraft.getInstance(), matrix, Minecraft.getInstance().renderBuffers().bufferSource());
             RenderSystem.enableDepthTest();

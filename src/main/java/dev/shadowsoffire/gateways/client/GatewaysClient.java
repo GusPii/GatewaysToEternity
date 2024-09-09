@@ -1,5 +1,7 @@
 package dev.shadowsoffire.gateways.client;
 
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import dev.shadowsoffire.gateways.GatewayObjects;
@@ -13,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -30,12 +33,19 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderer
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(bus = Bus.MOD, value = Dist.CLIENT, modid = Gateways.MODID)
 public class GatewaysClient {
+
+    public static final ResourceLocation WHITE_PROGRESS = ResourceLocation.withDefaultNamespace("boss_bar/white_progress");
+    public static final ResourceLocation WHITE_BACKGROUND = ResourceLocation.withDefaultNamespace("boss_bar/white_background");
+
+    @Nullable
+    public static Rect2i bossBarRect = null;
 
     @SubscribeEvent
     public static void setup(FMLClientSetupEvent e) {
@@ -50,14 +60,17 @@ public class GatewaysClient {
         NeoForge.EVENT_BUS.addListener(GatewaysClient::tooltip);
         NeoForge.EVENT_BUS.addListener(GatewaysClient::scroll);
         NeoForge.EVENT_BUS.addListener(GatewaysClient::scroll2);
+        NeoForge.EVENT_BUS.addListener(GatewaysClient::renderPre);
     }
 
     @SubscribeEvent
     public static void colors(RegisterColorHandlersEvent.Item e) {
         e.register((stack, tint) -> {
             DynamicHolder<Gateway> gate = GatePearlItem.getGate(stack);
-            if (gate.isBound()) return gate.get().color().getValue();
-            return 0xAAAAFF;
+            if (gate.isBound()) {
+                return 0xFF000000 | gate.get().color().getValue();
+            }
+            return 0xFFAAAAFF;
         }, GatewayObjects.GATE_PEARL.value());
     }
 
@@ -97,7 +110,9 @@ public class GatewaysClient {
         tooltipTick = PlaceboClient.ticks;
     }
 
-    public static final ResourceLocation BARS = ResourceLocation.withDefaultNamespace("textures/gui/bars.png");
+    public static void renderPre(RenderFrameEvent.Pre event) {
+        bossBarRect = null;
+    }
 
     public static void bossRenderPre(CustomizeGuiOverlayEvent.BossEventProgress event) {
         BossEvent boss = event.getBossEvent();
@@ -110,6 +125,7 @@ public class GatewaysClient {
                 event.setIncrement(event.getIncrement() * 2);
             }
         }
+        bossBarRect = new Rect2i(event.getX(), 0, 200, event.getY() + event.getIncrement());
     }
 
     /**

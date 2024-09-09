@@ -47,17 +47,17 @@
             "modifiers": [
                 {
                     "attribute": "generic.max_health",
-                    "operation": "MULTIPLY_TOTAL",
+                    "operation": "add_multiplied_total",
                     "value": 0.10
                 },
                 {
                     "attribute": "generic.movement_speed",
-                    "operation": "MULTIPLY_TOTAL",
+                    "operation": "add_multiplied_total",
                     "value": 0.05
                 },
                 {
-                    "attribute": "attributeslib:fire_damage",
-                    "operation": "ADDITION",
+                    "attribute": "apothic_attributes:fire_damage",
+                    "operation": "add_value",
                     "value": 2
                 }
             ],
@@ -104,8 +104,8 @@
                             "gear_set": "gateways:chain_with_bow"
                         },
                         {
-                            "attribute": "attributeslib:arrow_damage",
-                            "operation": "multiply_base",
+                            "attribute": "apothic_attributes:arrow_damage",
+                            "operation": "add_multiplied_base",
                             "value": 0.2
                         }
                     ],
@@ -120,27 +120,27 @@
             "modifiers": [
                 {
                     "attribute": "generic.max_health",
-                    "operation": "MULTIPLY_TOTAL",
+                    "operation": "add_multiplied_total",
                     "value": 0.15
                 },
                 {
                     "attribute": "generic.movement_speed",
-                    "operation": "MULTIPLY_TOTAL",
+                    "operation": "add_multiplied_total",
                     "value": 0.05
                 },
                 {
-                    "attribute": "attributeslib:fire_damage",
-                    "operation": "ADDITION",
+                    "attribute": "apothic_attributes:fire_damage",
+                    "operation": "add_value",
                     "value": 3
                 },
                 {
-                    "attribute": "attributeslib:arrow_damage",
-                    "operation": "ADDITION",
+                    "attribute": "apothic_attributes:arrow_damage",
+                    "operation": "add_value",
                     "value": 0.10
                 },
                 {
-                    "attribute": "attributeslib:life_steal",
-                    "operation": "ADDITION",
+                    "attribute": "apothic_attributes:life_steal",
+                    "operation": "add_value",
                     "value": 0.10
                 }
             ],
@@ -181,32 +181,32 @@
                         },
                         {
                             "attribute": "generic.max_health",
-                            "operation": "ADDITION",
+                            "operation": "add_value",
                             "value": 30
                         },
                         {
-                            "attribute": "attributeslib:armor_shred",
-                            "operation": "ADDITION",
+                            "attribute": "apothic_attributes:armor_shred",
+                            "operation": "add_value",
                             "value": 0.5
                         },
                         {
-                            "attribute": "attributeslib:prot_shred",
-                            "operation": "ADDITION",
+                            "attribute": "apothic_attributes:prot_shred",
+                            "operation": "add_value",
                             "value": 0.25
                         },
                         {
                             "attribute": "generic.attack_knockback",
-                            "operation": "ADDITION",
+                            "operation": "add_value",
                             "value": 2.5
                         },
                         {
                             "attribute": "generic.knockback_resistance",
-                            "operation": "ADDITION",
+                            "operation": "add_value",
                             "value": 0.25
                         },
                         {
-                            "attribute": "attributeslib:life_steal",
-                            "operation": "ADDITION",
+                            "attribute": "apothic_attributes:life_steal",
+                            "operation": "add_value",
                             "value": 0.10
                         }
                     ],
@@ -226,8 +226,8 @@
                             "gear_set": "gateways:chain_with_bow"
                         },
                         {
-                            "attribute": "attributeslib:arrow_damage",
-                            "operation": "multiply_base",
+                            "attribute": "apothic_attributes:arrow_damage",
+                            "operation": "add_multiplied_base",
                             "value": 0.2
                         }
                     ],
@@ -242,27 +242,27 @@
             "modifiers": [
                 {
                     "attribute": "generic.max_health",
-                    "operation": "MULTIPLY_TOTAL",
+                    "operation": "add_multiplied_total",
                     "value": 0.25
                 },
                 {
                     "attribute": "generic.knockback_resistance",
-                    "operation": "ADDITION",
+                    "operation": "add_value",
                     "value": 0.5
                 },
                 {
                     "attribute": "generic.armor",
-                    "operation": "ADDITION",
+                    "operation": "add_value",
                     "value": 3
                 },
                 {
-                    "attribute": "attributeslib:fire_damage",
-                    "operation": "ADDITION",
+                    "attribute": "apothic_attributes:fire_damage",
+                    "operation": "add_value",
                     "value": 4
                 },
                 {
-                    "attribute": "attributeslib:life_steal",
-                    "operation": "ADDITION",
+                    "attribute": "apothic_attributes:life_steal",
+                    "operation": "add_value",
                     "value": 0.10
                 }
             ],
@@ -297,7 +297,7 @@
         {
             "type": "gateways:stack",
             "stack": {
-                "item": "minecraft:spawner",
+                "id": "minecraft:spawner",
                 "count": 1,
                 "nbt": {
                     "BlockEntityTag": {

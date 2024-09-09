@@ -18,7 +18,7 @@
     }
   },
   "result": {
-    "item": "gateways:gate_pearl"
+    "id": "gateways:gate_pearl"
   },
   "gateway": "gateways:basic/enderman"
 }
