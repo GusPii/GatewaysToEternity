@@ -72,7 +72,11 @@ public class GatePearlItem extends Item implements ITabFiller {
     }
 
     public static void setGate(ItemStack opener, Gateway gate) {
-        opener.set(GatewayObjects.GATEWAY_COMPONENT, GatewayRegistry.INSTANCE.holder(gate));
+        setGate(opener, GatewayRegistry.INSTANCE.holder(gate));
+    }
+
+    public static void setGate(ItemStack opener, DynamicHolder<Gateway> gate) {
+        opener.set(GatewayObjects.GATEWAY_COMPONENT, gate);
     }
 
     public static DynamicHolder<Gateway> getGate(ItemStack opener) {

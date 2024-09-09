@@ -24,12 +24,17 @@ public class GatewayRecipeSerializer extends ShapedRecipe.Serializer {
         GatewayRegistry.INSTANCE.holderCodec().fieldOf("gateway").forGetter(GatewayRecipeSerializer::resolveGatewayHolder))
         .apply(inst, GatewayRecipeSerializer::buildRecipe));
 
+    @Override
+    public MapCodec<ShapedRecipe> codec() {
+        return CODEC;
+    }
+
     public static ShapedRecipe buildRecipe(ShapedRecipe recipe, DynamicHolder<Gateway> holder) {
         ItemStack gateway = recipe.getResultItem(null);
         if (!(gateway.getItem() instanceof GatePearlItem)) {
             throw new JsonSyntaxException("Gateway Recipe output must be a gate opener item.  Provided: " + BuiltInRegistries.ITEM.getKey(gateway.getItem()));
         }
-        GatePearlItem.setGate(gateway, holder.get());
+        GatePearlItem.setGate(gateway, holder);
         return recipe;
     }
 
