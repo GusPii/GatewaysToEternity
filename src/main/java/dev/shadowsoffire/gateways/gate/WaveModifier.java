@@ -9,7 +9,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.apothic_attributes.ApothicAttributes;
-import dev.shadowsoffire.apothic_attributes.api.IFormattableAttribute;
 import dev.shadowsoffire.gateways.Gateways;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
@@ -109,7 +108,7 @@ public interface WaveModifier extends CodecProvider<WaveModifier> {
 
         @Override
         public void appendHoverText(TooltipContext ctx, Consumer<MutableComponent> list) {
-            list.accept(IFormattableAttribute.toComponent(modifier.attribute(), modifier.createDeterministic(Gateways.loc("gateway_random_modifier")), ApothicAttributes.getTooltipFlag()));
+            list.accept(modifier.attribute().value().toComponent(modifier.createDeterministic(Gateways.loc("gateway_random_modifier")), ApothicAttributes.getTooltipFlag()));
         }
 
     }

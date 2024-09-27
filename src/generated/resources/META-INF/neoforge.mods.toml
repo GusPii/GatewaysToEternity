@@ -29,7 +29,7 @@ config="gateways.mixins.json"
 [[dependencies.gateways]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.8,)"
+    versionRange="[21.1.61,)"
     ordering="NONE"
     side="BOTH"
 
@@ -43,6 +43,6 @@ config="gateways.mixins.json"
 [[dependencies.gateways]]
     modId="apothic_attributes"
     type="required"
-    versionRange="[2.3.0,)"
+    versionRange="[2.4.0,)"
     ordering="NONE"
     side="BOTH"
