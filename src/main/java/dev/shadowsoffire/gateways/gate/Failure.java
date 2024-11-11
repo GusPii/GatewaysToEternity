@@ -143,7 +143,7 @@ public interface Failure extends CodecProvider<Failure> {
         @Override
         public void onFailure(ServerLevel level, GatewayEntity gate, Player summoner, FailureReason reason) {
             for (int i = 0; i < entity.getCount(); i++) {
-                Entity ent = entity.createEntity(level);
+                Entity ent = entity.createEntity(level, gate);
                 if (ent != null) {
                     Vec3 pos = gate.getGateway().spawnAlgo().spawn(level, gate.position(), gate, ent);
                     ent.setPos(pos != null ? pos : gate.position());

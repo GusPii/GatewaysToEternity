@@ -332,7 +332,7 @@ public interface Reward extends CodecProvider<Reward> {
         @Override
         public void generateLoot(ServerLevel level, GatewayEntity gate, Player summoner, Consumer<ItemStack> list) {
             for (int i = 0; i < entity.getCount(); i++) {
-                Entity ent = entity.createEntity(level);
+                Entity ent = entity.createEntity(level, gate);
                 if (ent != null) {
                     Vec3 pos = gate.getGateway().spawnAlgo().spawn(level, gate.position(), gate, ent);
                     ent.setPos(pos != null ? pos : gate.position());

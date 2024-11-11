@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import dev.shadowsoffire.gateways.Gateways;
+import dev.shadowsoffire.gateways.entity.GatewayEntity;
 import dev.shadowsoffire.placebo.codec.CodecMap;
 import dev.shadowsoffire.placebo.codec.CodecProvider;
 import dev.shadowsoffire.placebo.json.NBTAdapter;
@@ -16,6 +17,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,7 +43,9 @@ public interface WaveEntity extends CodecProvider<WaveEntity> {
      * @param level The level.
      * @return The entity, or null if an error occured. Null will end the gate.
      */
-    public LivingEntity createEntity(Level level);
+    default LivingEntity createEntity(ServerLevel level, GatewayEntity gate) {
+        return createEntity(level);
+    }
 
     /**
      * Gets the tooltip form of this wave entity for display in the Gate Pearl's "Waves" section.
@@ -57,6 +61,14 @@ public interface WaveEntity extends CodecProvider<WaveEntity> {
      * The number of times this wave entity should be spawned.
      */
     public int getCount();
+
+    /**
+     * @deprecated Use {@link #createEntity(ServerLevel, GatewayEntity)}.
+     */
+    @Deprecated(forRemoval = true)
+    default LivingEntity createEntity(Level level) {
+        return null;
+    }
 
     public static class StandardWaveEntity implements WaveEntity {
 
@@ -88,7 +100,7 @@ public interface WaveEntity extends CodecProvider<WaveEntity> {
         }
 
         @Override
-        public LivingEntity createEntity(Level level) {
+        public LivingEntity createEntity(ServerLevel level, GatewayEntity gate) {
             Entity ent = EntityType.loadEntityRecursive(this.tag, level, Function.identity());
             if (ent instanceof LivingEntity living) {
                 this.modifiers.forEach(m -> m.apply(living));

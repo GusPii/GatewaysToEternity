@@ -94,7 +94,7 @@ public record Wave(List<WaveEntity> entities, List<WaveModifier> modifiers, List
      * @return The freshly spawned entity, or null if the spawn failed.
      */
     public static LivingEntity spawnWaveEntity(ServerLevel level, Vec3 pos, GatewayEntity gate, Wave wave, WaveEntity waveEntity) {
-        LivingEntity entity = waveEntity.createEntity(level);
+        LivingEntity entity = waveEntity.createEntity(level, gate);
         if (entity == null) return null;
 
         Vec3 spawnPos = gate.getGateway().spawnAlgo().spawn(level, pos, gate, entity);
